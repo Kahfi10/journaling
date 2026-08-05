@@ -37,22 +37,21 @@ export function FriendsMarqueeText() {
   return (
     <section
       ref={ref}
-      className="px-8 py-24"
-      style={{
-        background: "var(--j-bg)",
-        borderTop: "1px solid var(--j-border)",
-      }}
+      className="px-5 sm:px-8 lg:px-16 py-16 md:py-24"
+      style={{ background: "var(--j-bg)", borderTop: "1px solid var(--j-border)" }}
     >
-      <div className="max-w-[1440px] mx-auto">
+      <div className="max-w-[1440px] mx-auto overflow-hidden">
         <p
           ref={textRef}
           className="font-light"
           style={{
             fontFamily: "var(--font-apple)",
-            fontSize: "clamp(2.8rem, 6.5vw, 6rem)",
+            fontSize: "clamp(1.8rem, 5vw, 6rem)",
             letterSpacing: "-0.04em",
-            lineHeight: 1.0,
+            lineHeight: 1.05,
             color: "var(--j-text-1)",
+            wordBreak: "break-word",
+            overflowWrap: "break-word",
           }}
         >
           Late nights, long drives,
@@ -127,22 +126,18 @@ export function FriendsFromTo() {
   return (
     <section
       ref={ref}
-      className="px-8 py-24"
-      style={{
-        background: "var(--j-bg)",
-        borderTop: "1px solid var(--j-border)",
-      }}
+      className="px-5 sm:px-8 lg:px-16 py-16 md:py-24"
+      style={{ background: "var(--j-bg)", borderTop: "1px solid var(--j-border)" }}
     >
       <div className="max-w-[1440px] mx-auto">
 
-        {/* Title — center aligned like reference */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 md:mb-16">
           <h2
             ref={titleRef}
             className="font-light leading-tight"
             style={{
               fontFamily: "var(--font-apple)",
-              fontSize: "clamp(1.4rem, 2.5vw, 2.2rem)",
+              fontSize: "clamp(1.2rem, 2.5vw, 2.2rem)",
               letterSpacing: "-0.025em",
               color: "var(--j-text-1)",
             }}
@@ -152,7 +147,7 @@ export function FriendsFromTo() {
           </h2>
         </div>
 
-        {/* Image with sketch effect — two layer color-dodge technique */}
+        {/* Sketch image — full width on mobile */}
         <div
           ref={imgRef}
           className="relative w-full overflow-hidden rounded-lg"
@@ -164,53 +159,19 @@ export function FriendsFromTo() {
             margin: "0 auto",
           }}
         >
-          {/* Layer 1 — grayscale base */}
           <div className="absolute inset-0" style={{ filter: "grayscale(1) contrast(1.1)" }}>
-            <Image
-              src="/images/hero-image/IMG_5337.JPG.jpeg"
-              alt="sketch base"
-              fill
-              className="object-cover"
-              quality={90}
-              sizes="(max-width: 900px) 100vw, 900px"
-            />
+            <Image src="/images/hero-image/IMG_5337.JPG.jpeg" alt="sketch base" fill className="object-cover" quality={90} sizes="(max-width: 900px) 100vw, 900px" />
           </div>
-
-          {/* Layer 2 — inverted + blurred, color-dodge blend = pencil lines */}
-          <div
-            className="absolute inset-0"
-            style={{
-              filter: "grayscale(1) invert(1) blur(6px)",
-              mixBlendMode: "color-dodge",
-            }}
-          >
-            <Image
-              src="/images/hero-image/IMG_5337.JPG.jpeg"
-              alt="sketch layer"
-              fill
-              className="object-cover"
-              quality={90}
-              sizes="(max-width: 900px) 100vw, 900px"
-              aria-hidden="true"
-            />
+          <div className="absolute inset-0" style={{ filter: "grayscale(1) invert(1) blur(6px)", mixBlendMode: "color-dodge" }}>
+            <Image src="/images/hero-image/IMG_5337.JPG.jpeg" alt="sketch layer" fill className="object-cover" quality={90} sizes="(max-width: 900px) 100vw, 900px" aria-hidden="true" />
           </div>
-
-          {/* Layer 3 — slight contrast boost on top */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ backdropFilter: "contrast(1.4) brightness(0.95)", mixBlendMode: "multiply" }}
-          />
+          <div className="absolute inset-0 pointer-events-none" style={{ backdropFilter: "contrast(1.4) brightness(0.95)", mixBlendMode: "multiply" }} />
         </div>
 
-        {/* Caption body */}
         <p
           ref={bodyRef}
-          className="text-center mt-10 text-sm max-w-xl mx-auto leading-relaxed"
-          style={{
-            color: "var(--j-text-3)",
-            fontFamily: "var(--font-apple)",
-            letterSpacing: "0.01em",
-          }}
+          className="text-center mt-8 text-sm max-w-xl mx-auto leading-relaxed px-4"
+          style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)", letterSpacing: "0.01em" }}
         >
           Every great friendship starts with a first moment —
           a glance, a word, a shared laugh.
@@ -265,21 +226,17 @@ export function FriendsClaritySection() {
   return (
     <section
       ref={ref}
-      className="px-8 py-28"
-      style={{
-        background: "var(--j-bg)",
-        borderTop: "1px solid var(--j-border)",
-      }}
+      className="px-5 sm:px-8 lg:px-16 py-16 md:py-28 overflow-hidden"
+      style={{ background: "var(--j-bg)", borderTop: "1px solid var(--j-border)" }}
     >
       <div className="max-w-[1440px] mx-auto">
 
-        {/* Large centered headline */}
         <h2
           ref={headlineRef}
-          className="text-center font-light leading-none mb-20"
+          className="text-center font-light leading-none mb-12 md:mb-20"
           style={{
             fontFamily: "var(--font-apple)",
-            fontSize: "clamp(3.5rem, 9vw, 9rem)",
+            fontSize: "clamp(2.5rem, 7vw, 9rem)",
             letterSpacing: "-0.04em",
             color: "var(--j-text-1)",
             lineHeight: 1.0,
@@ -289,27 +246,13 @@ export function FriendsClaritySection() {
           Unforgettable
         </h2>
 
-        {/* Two sub-texts below — like reference */}
-        <div className="grid gap-12" style={{ gridTemplateColumns: "1fr 1fr", maxWidth: "900px", margin: "0 auto" }}>
-          <p
-            className="clarity-sub text-sm leading-relaxed"
-            style={{
-              color: "var(--j-text-3)",
-              fontFamily: "var(--font-apple)",
-              letterSpacing: "0.01em",
-            }}
-          >
+        {/* Two sub-texts — stack on mobile */}
+        <div className="flex flex-col gap-5 sm:grid sm:grid-cols-2 sm:gap-12 max-w-3xl mx-auto">
+          <p className="clarity-sub text-sm leading-relaxed" style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}>
             Late-night drives, random stops, forgotten plans,
             and every detour that somehow became the best part of the trip.
           </p>
-          <p
-            className="clarity-sub text-sm leading-relaxed"
-            style={{
-              color: "var(--j-text-3)",
-              fontFamily: "var(--font-apple)",
-              letterSpacing: "0.01em",
-            }}
-          >
+          <p className="clarity-sub text-sm leading-relaxed" style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}>
             The kind of days that look ordinary from the outside —
             but you know exactly how rare and special they really are.
           </p>
@@ -369,7 +312,7 @@ export function FriendsFullImage() {
         ref={imgRef}
         className="relative w-full"
         style={{
-          height: "100vh",     // full screen
+          height: "clamp(300px, 60vh, 100vh)",
           background: "var(--j-bg-alt)",
         }}
       >

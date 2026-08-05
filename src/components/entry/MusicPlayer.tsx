@@ -123,7 +123,7 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
       WebkitBackdropFilter: "blur(20px)",
       borderColor: "var(--j-border)",
     }}>
-      <div className="flex items-center gap-4 px-10 h-[64px] max-w-screen-2xl mx-auto">
+      <div className="flex items-center gap-3 px-4 sm:px-8 md:px-10 h-[56px] sm:h-[64px] max-w-screen-2xl mx-auto">
 
         {/* Play/Pause */}
         <button
@@ -168,8 +168,8 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
           </span>
         </div>
 
-        {/* Waveform */}
-        <div ref={waveRef} className="flex-1" />
+        {/* Waveform — hide on mobile */}
+        <div ref={waveRef} className="hidden sm:block flex-1" />
 
         {/* Mute */}
         <button onClick={toggleMute} className="w-7 h-7 flex items-center justify-center rounded flex-shrink-0 transition-colors hover:opacity-60" aria-label={muted ? "Unmute" : "Mute"}>

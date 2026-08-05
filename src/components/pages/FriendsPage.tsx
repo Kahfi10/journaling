@@ -127,7 +127,7 @@ export function FriendsPage({ entries }: FriendsPageProps) {
         />
 
         {/* ── Top-left logo ── */}
-        <div className="page-logo absolute top-7 left-8 z-10">
+        <div className="page-logo absolute top-5 left-5 sm:top-7 sm:left-8 z-10">
           <Link href="/" className="block">
             <p className="text-white text-xs font-medium leading-snug tracking-wider" style={{ fontFamily: "var(--font-apple)" }}>
               Journal<br />
@@ -137,12 +137,12 @@ export function FriendsPage({ entries }: FriendsPageProps) {
         </div>
 
         {/* ── Top-right navigation ── */}
-        <nav className="absolute top-7 right-8 z-10 flex items-center gap-6">
+        <nav className="absolute top-5 right-5 sm:top-7 sm:right-8 z-10 flex items-center gap-4 sm:gap-6">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`page-nav-item text-xs tracking-wider transition-opacity ${link.href === "/friends" ? "text-white" : "text-white/50 hover:text-white/80"}`}
+              className={`page-nav-item text-[10px] sm:text-xs tracking-wider transition-opacity ${link.href === "/friends" ? "text-white" : "text-white/50 hover:text-white/80"}`}
               style={{
                 fontFamily: "var(--font-apple)",
                 textDecoration: link.href === "/friends" ? "underline" : "none",
@@ -155,13 +155,13 @@ export function FriendsPage({ entries }: FriendsPageProps) {
         </nav>
 
         {/* ── Bottom-left large title ── */}
-        <div className="absolute bottom-10 left-8 z-10 max-w-[65vw]">
+        <div className="absolute bottom-8 left-5 sm:bottom-10 sm:left-8 z-10 max-w-[85vw] sm:max-w-[65vw]">
           <h1
             ref={titleRef}
             className="text-white font-light leading-none"
             style={{
               fontFamily: "var(--font-apple)",
-              fontSize: "clamp(3.5rem, 8vw, 7rem)",
+              fontSize: "clamp(2.8rem, 8vw, 7rem)",
               letterSpacing: "-0.04em",
               lineHeight: 0.92,
             }}
@@ -188,24 +188,15 @@ export function FriendsPage({ entries }: FriendsPageProps) {
       <FriendsFromTo />
 
       {/* ── ENTRY GRID ── */}
-      <section className="px-8 py-16" style={{ background: "var(--j-bg)" }}>
-        {/* Section header */}
-        <div className="flex items-end justify-between mb-10 max-w-[1440px] mx-auto">
+      <section className="px-5 sm:px-8 lg:px-16 py-12 md:py-16" style={{ background: "var(--j-bg)" }}>
+        <div className="flex items-end justify-between mb-8 md:mb-10 max-w-[1440px] mx-auto">
           <div>
-            <p
-              className="text-xs tracking-widest uppercase font-mono-custom mb-2"
-              style={{ color: "var(--j-text-3)" }}
-            >
+            <p className="text-xs tracking-widest uppercase font-mono-custom mb-1.5" style={{ color: "var(--j-text-3)" }}>
               {entries.length} moment{entries.length !== 1 ? "s" : ""}
             </p>
             <h2
               className="font-light"
-              style={{
-                fontFamily: "var(--font-apple)",
-                fontSize: "1.75rem",
-                letterSpacing: "-0.03em",
-                color: "var(--j-text-1)",
-              }}
+              style={{ fontFamily: "var(--font-apple)", fontSize: "clamp(1.3rem, 2vw, 1.75rem)", letterSpacing: "-0.03em", color: "var(--j-text-1)" }}
             >
               All Memories
             </h2>
@@ -221,8 +212,7 @@ export function FriendsPage({ entries }: FriendsPageProps) {
         ) : (
           <div
             ref={gridRef}
-            className="grid gap-4 max-w-[1440px] mx-auto"
-            style={{ gridTemplateColumns: "repeat(3, 1fr)" }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-[1440px] mx-auto"
           >
             {entries.map((entry) => (
               <EntryGridCard key={entry.slug} entry={entry} />

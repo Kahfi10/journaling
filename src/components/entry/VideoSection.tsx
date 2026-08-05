@@ -98,7 +98,7 @@ export function VideoSection({ media, index, music }: VideoSectionProps) {
       <div className="absolute inset-0 bg-black/10" />
 
       {media.caption && (
-        <div ref={captionRef} className="absolute bottom-24 left-0 right-0 px-20">
+        <div ref={captionRef} className="absolute bottom-20 sm:bottom-24 left-0 right-0 px-5 sm:px-12 md:px-20">
           <EntryCaption caption={media.caption} />
         </div>
       )}

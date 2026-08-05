@@ -104,9 +104,9 @@ export function EntryHero({ title, dateTaken, location, coverUrl }: EntryHeroPro
       <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.42)" }} />
 
       {/* Content */}
-      <div className="relative z-10 text-center px-8 max-w-5xl mx-auto">
+      <div className="relative z-10 text-center px-5 sm:px-8 max-w-5xl mx-auto">
         {location && (
-          <div className="hero-meta inline-flex items-center gap-1.5 mb-7 px-3 py-1.5 rounded-full border" style={{ borderColor: "rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.1)" }}>
+          <div className="hero-meta inline-flex items-center gap-1.5 mb-5 sm:mb-7 px-3 py-1.5 rounded-full border" style={{ borderColor: "rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.1)" }}>
             <MapPin className="w-3 h-3" style={{ color: "rgba(255,255,255,0.8)" }} />
             <span className="text-[10px] font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.8)" }}>
               {location.display_name}
@@ -116,12 +116,18 @@ export function EntryHero({ title, dateTaken, location, coverUrl }: EntryHeroPro
 
         <h1
           ref={titleRef}
-          className="text-white text-display-xl font-light mb-5"
+          className="text-white font-light mb-4 sm:mb-5"
+          style={{
+            fontFamily: "var(--font-apple)",
+            fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
+            letterSpacing: "-0.04em",
+            lineHeight: 1.0,
+          }}
         >
           {title}
         </h1>
 
-        <p className="hero-meta font-mono-custom text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>
+        <p className="hero-meta font-mono-custom text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>
           {formatDate(dateTaken)}
         </p>
       </div>

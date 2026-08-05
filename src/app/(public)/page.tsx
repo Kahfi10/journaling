@@ -38,7 +38,7 @@ export default function HomePage() {
       </div>
 
       {/* Page links */}
-      <nav className="flex flex-col items-center gap-0 w-full max-w-xs">
+      <nav className="flex flex-col items-center gap-0 w-full max-w-xs px-5 sm:px-0 sm:max-w-sm">
         {PAGES.map((page, i) => (
           <Link
             key={page.href}
@@ -50,20 +50,12 @@ export default function HomePage() {
             }}
           >
             <span
-              className="font-light"
-              style={{
-                fontFamily: "var(--font-apple)",
-                fontSize: "1.1rem",
-                letterSpacing: "-0.02em",
-                color: "var(--j-text-1)",
-              }}
+              className="font-light text-base sm:text-lg"
+              style={{ fontFamily: "var(--font-apple)", letterSpacing: "-0.02em", color: "var(--j-text-1)" }}
             >
               {page.label}
             </span>
-            <span
-              className="text-xs font-mono-custom"
-              style={{ color: "var(--j-text-3)" }}
-            >
+            <span className="text-xs font-mono-custom" style={{ color: "var(--j-text-3)" }}>
               {page.sub}
             </span>
           </Link>

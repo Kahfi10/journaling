@@ -10,7 +10,7 @@ interface EntryFooterProps {
 
 export function EntryFooter({ dateTaken, location }: EntryFooterProps) {
   return (
-    <footer className="py-24 px-32" style={{ background: "var(--j-bg)", borderTop: "1px solid var(--j-border)" }}>
+    <footer className="py-16 md:py-24 px-5 sm:px-12 md:px-24 lg:px-32" style={{ background: "var(--j-bg)", borderTop: "1px solid var(--j-border)" }}>
       <div className="max-w-2xl">
         {location && (
           <div className="flex items-center gap-2 mb-4">
