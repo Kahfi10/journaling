@@ -1,35 +1,52 @@
 // src/types/entry.ts
-import type { Entry, Media, Music, Location, MediaType, MusicSource, MusicDuration } from "@prisma/client"
+// Simplified types — no Prisma dependency
 
-export type { MediaType, MusicSource, MusicDuration }
+export type MediaType = "PHOTO" | "VIDEO"
+export type MusicSource = "UPLOAD" | "ITUNES"
+export type MusicDuration = "FIFTEEN" | "THIRTY" | "SIXTY"
 
-// Entry dengan semua relasi — untuk detail page
-export type EntryFull = Entry & {
-  media: Media[]
-  music: Music | null
-  location: Location | null
+export interface Media {
+  id: string
+  url: string
+  public_id: string
+  type: MediaType
+  caption: string | null
+  order: number
+  created_at: Date
+  entry_id: string
 }
 
-// Entry untuk feed card — data minimal
-export type EntryCard = {
+export interface Music {
+  id: string
+  source: MusicSource
+  file_url: string | null
+  file_public_id: string | null
+  itunes_track_id: string | null
+  preview_url: string | null
+  track_name: string | null
+  artist_name: string | null
+  album_name: string | null
+  album_art_url: string | null
+  start_time: number
+  duration: MusicDuration
+  created_at: Date
+  entry_id: string
+}
+
+export interface Location {
+  id: string
+  display_name: string
+  place_id: string
+  lat: number
+  lng: number
+  created_at: Date
+  entry_id: string
+}
+
+export interface EntryCard {
   slug: string
   title: string
   date_taken: Date
   media: Pick<Media, "url" | "type">[]
   location: Pick<Location, "display_name"> | null
 }
-
-// Entry untuk admin list
-export type EntryListItem = {
-  id: string
-  slug: string
-  title: string
-  published: boolean
-  date_taken: Date
-  created_at: Date
-  media: Pick<Media, "url">[]
-  _count: { media: number }
-}
-
-// Media individual
-export type { Media, Music, Location }

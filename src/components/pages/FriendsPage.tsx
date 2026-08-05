@@ -11,7 +11,7 @@ import { MapPin } from "lucide-react"
 import { FriendsInfoSection } from "./FriendsInfoSection"
 import { FriendsMarqueeText, FriendsFromTo, FriendsClaritySection, FriendsFullImage } from "./FriendsSections"
 import { formatDate } from "@/lib/utils"
-import type { EntryCard } from "@/types/entry"
+import type { Entry } from "@/data/types"
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP)
 
@@ -22,7 +22,7 @@ const NAV_LINKS = [
 ]
 
 interface FriendsPageProps {
-  entries: EntryCard[]
+  entries: Entry[]
 }
 
 export function FriendsPage({ entries }: FriendsPageProps) {
@@ -235,7 +235,7 @@ export function FriendsPage({ entries }: FriendsPageProps) {
 }
 
 // ── Individual entry card ──
-function EntryGridCard({ entry }: { entry: EntryCard }) {
+function EntryGridCard({ entry }: { entry: Entry }) {
   const cover = entry.media[0]
 
   return (
@@ -252,6 +252,14 @@ function EntryGridCard({ entry }: { entry: EntryCard }) {
           {cover ? (
             <Image
               src={cover.url}
+              alt={entry.title}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+              sizes="(max-width: 1440px) 33vw, 480px"
+            />
+          ) : entry.cover ? (
+            <Image
+              src={entry.cover}
               alt={entry.title}
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
@@ -274,7 +282,7 @@ function EntryGridCard({ entry }: { entry: EntryCard }) {
               <div className="flex items-center gap-1.5 mb-1.5">
                 <MapPin className="w-2.5 h-2.5 text-white/60" />
                 <span className="text-[10px] tracking-widest uppercase text-white/60">
-                  {entry.location.display_name}
+                  {entry.location}
                 </span>
               </div>
             )}
@@ -285,7 +293,7 @@ function EntryGridCard({ entry }: { entry: EntryCard }) {
               {entry.title}
             </h3>
             <p className="font-mono-custom text-[10px] text-white/40 mt-1">
-              {formatDate(entry.date_taken)}
+              {formatDate(entry.date)}
             </p>
           </div>
         </div>
