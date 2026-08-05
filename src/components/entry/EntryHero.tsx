@@ -26,41 +26,36 @@ export function EntryHero({ title, dateTaken, location, coverUrl }: EntryHeroPro
 
   useGSAP(
     () => {
-      // Title reveal
       if (titleRef.current) {
         const split = new SplitText(titleRef.current, { type: "words" })
         gsap.from(split.words, {
-          y: 60,
+          y: 50,
           opacity: 0,
           duration: 0.9,
           ease: "power3.out",
-          stagger: 0.08,
+          stagger: 0.07,
           delay: 0.3,
         })
       }
 
-      // Fade in location + date
       gsap.from(".hero-meta", {
-        y: 20,
+        y: 16,
         opacity: 0,
         duration: 0.7,
         ease: "power2.out",
         stagger: 0.1,
-        delay: 0.6,
+        delay: 0.65,
       })
 
-      // Scroll arrow bounce
       if (arrowRef.current) {
         gsap.to(arrowRef.current, {
-          y: 8,
+          y: 7,
           repeat: -1,
           yoyo: true,
           duration: 0.9,
           ease: "power1.inOut",
           delay: 1.2,
         })
-
-        // Hide arrow on scroll
         ScrollTrigger.create({
           trigger: document.body,
           start: "80px top",
@@ -69,7 +64,6 @@ export function EntryHero({ title, dateTaken, location, coverUrl }: EntryHeroPro
         })
       }
 
-      // Hero image parallax
       const img = containerRef.current?.querySelector(".hero-img")
       if (img) {
         gsap.to(img, {
@@ -106,31 +100,28 @@ export function EntryHero({ title, dateTaken, location, coverUrl }: EntryHeroPro
         </div>
       )}
 
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/55" />
+      {/* Overlay — tetap gelap untuk readability */}
+      <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.42)" }} />
 
       {/* Content */}
       <div className="relative z-10 text-center px-8 max-w-5xl mx-auto">
-        {/* Location badge */}
         {location && (
-          <div className="hero-meta inline-flex items-center gap-1.5 mb-8 px-3 py-1.5 rounded-full border border-[#C8A96E]/30 bg-[#C8A96E]/12">
-            <MapPin className="w-3 h-3 text-[#C8A96E]" />
-            <span className="text-[#C8A96E] text-[11px] font-medium tracking-widest uppercase font-sans">
+          <div className="hero-meta inline-flex items-center gap-1.5 mb-7 px-3 py-1.5 rounded-full border" style={{ borderColor: "rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.1)" }}>
+            <MapPin className="w-3 h-3" style={{ color: "rgba(255,255,255,0.8)" }} />
+            <span className="text-[10px] font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.8)" }}>
               {location.display_name}
             </span>
           </div>
         )}
 
-        {/* Title */}
         <h1
           ref={titleRef}
-          className="text-display-xl text-[#F0EDE8] mb-6"
+          className="text-white text-display-xl mb-5"
         >
           {title}
         </h1>
 
-        {/* Date */}
-        <p className="hero-meta font-mono-custom text-[#888888] text-sm tracking-widest">
+        <p className="hero-meta font-mono-custom text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>
           {formatDate(dateTaken)}
         </p>
       </div>
@@ -140,8 +131,8 @@ export function EntryHero({ title, dateTaken, location, coverUrl }: EntryHeroPro
         ref={arrowRef}
         className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
-        <span className="text-[#555555] text-[10px] tracking-widest uppercase font-sans">Scroll</span>
-        <ChevronDown className="w-4 h-4 text-[#555555]" />
+        <span className="font-mono-custom text-[9px] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.4)" }}>Scroll</span>
+        <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
       </div>
     </section>
   )

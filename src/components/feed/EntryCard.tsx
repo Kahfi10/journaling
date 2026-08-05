@@ -13,44 +13,40 @@ export function EntryCard({ entry }: EntryCardProps) {
 
   return (
     <Link href={`/entry/${entry.slug}`} className="block group">
-      <article className="entry-card relative overflow-hidden rounded-[6px] aspect-[3/2] bg-[#111111]">
+      <article className="entry-card overflow-hidden rounded-lg" style={{ background: "var(--j-surface)" }}>
         {/* Cover Image */}
-        {cover ? (
-          <Image
-            src={cover.url}
-            alt={entry.title}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            sizes="(max-width: 1440px) 33vw, 480px"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-[#1A1A1A]" />
-        )}
-
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 overlay-card" />
-
-        {/* Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 transition-transform duration-200 group-hover:-translate-y-1">
-          {/* Location */}
-          {entry.location && (
-            <div className="flex items-center gap-1.5 mb-3">
-              <MapPin className="w-3 h-3 text-[#C8A96E]" />
-              <span className="text-[#C8A96E] text-[11px] font-medium tracking-widest uppercase font-sans">
-                {entry.location.display_name}
-              </span>
-            </div>
+        <div className="relative aspect-[3/2] overflow-hidden" style={{ background: "var(--j-bg-alt)" }}>
+          {cover ? (
+            <Image
+              src={cover.url}
+              alt={entry.title}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+              sizes="(max-width: 1440px) 33vw, 480px"
+            />
+          ) : (
+            <div className="absolute inset-0" style={{ background: "var(--j-bg-alt)" }} />
           )}
+          {/* Gradient overlay tetap gelap agar teks terbaca di atas foto */}
+          <div className="absolute inset-0 overlay-card" />
 
-          {/* Title */}
-          <h2 className="font-display text-[#F0EDE8] text-2xl font-semibold leading-tight mb-2">
-            {entry.title}
-          </h2>
-
-          {/* Date */}
-          <p className="font-mono-custom text-[#888888] text-[11px] tracking-wider">
-            {formatDate(entry.date_taken)}
-          </p>
+          {/* Info di atas foto */}
+          <div className="absolute bottom-0 left-0 right-0 p-5 transition-transform duration-200 group-hover:-translate-y-0.5">
+            {entry.location && (
+              <div className="flex items-center gap-1.5 mb-2">
+                <MapPin className="w-2.5 h-2.5" style={{ color: "rgba(255,255,255,0.7)" }} />
+                <span className="text-[10px] font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.7)" }}>
+                  {entry.location.display_name}
+                </span>
+              </div>
+            )}
+            <h2 className="text-white text-lg font-semibold leading-tight mb-1" style={{ letterSpacing: "-0.02em" }}>
+              {entry.title}
+            </h2>
+            <p className="font-mono-custom text-[10px]" style={{ color: "rgba(255,255,255,0.5)" }}>
+              {formatDate(entry.date_taken)}
+            </p>
+          </div>
         </div>
       </article>
     </Link>

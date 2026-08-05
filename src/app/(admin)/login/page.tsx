@@ -17,15 +17,8 @@ export default function LoginPage() {
     e.preventDefault()
     setError("")
     setLoading(true)
-
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    })
-
+    const result = await signIn("credentials", { email, password, redirect: false })
     setLoading(false)
-
     if (result?.error) {
       setError("Email atau password salah")
     } else {
@@ -35,52 +28,56 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-6">
+    <main className="min-h-screen flex items-center justify-center px-6" style={{ background: "var(--j-bg)" }}>
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-10">
-          <span className="font-display text-3xl font-semibold text-[#F0EDE8]">Journal</span>
-          <p className="text-[#555555] text-sm font-sans mt-2 tracking-wider">Admin Panel</p>
+          <span className="text-2xl font-semibold tracking-tight" style={{ color: "var(--j-text-1)", letterSpacing: "-0.03em" }}>
+            Journal
+          </span>
+          <p className="text-xs mt-1.5 tracking-widest uppercase font-mono-custom" style={{ color: "var(--j-text-3)" }}>
+            Admin
+          </p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block text-[#888888] text-xs font-sans tracking-widest uppercase mb-2">
+            <label className="block text-xs font-medium tracking-widest uppercase mb-1.5" style={{ color: "var(--j-text-2)" }}>
               Email
             </label>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               required
-              className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[#F0EDE8] text-sm px-4 py-3 focus:outline-none focus:border-[#C8A96E] transition-colors font-sans"
+              className="input-base w-full"
               placeholder="admin@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-[#888888] text-xs font-sans tracking-widest uppercase mb-2">
+            <label className="block text-xs font-medium tracking-widest uppercase mb-1.5" style={{ color: "var(--j-text-2)" }}>
               Password
             </label>
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               required
-              className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[#F0EDE8] text-sm px-4 py-3 focus:outline-none focus:border-[#C8A96E] transition-colors font-sans"
+              className="input-base w-full"
               placeholder="••••••••"
             />
           </div>
 
           {error && (
-            <p className="text-[#FF4D4D] text-sm font-sans">{error}</p>
+            <p className="text-xs" style={{ color: "var(--destructive)" }}>{error}</p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#C8A96E] text-[#0A0A0A] font-sans font-semibold text-sm py-3 rounded hover:bg-[#D4B87A] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-md text-sm font-medium transition-opacity disabled:opacity-50 mt-1"
+            style={{ background: "var(--j-text-1)", color: "var(--j-white)" }}
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             Masuk

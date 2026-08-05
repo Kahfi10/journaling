@@ -1,60 +1,74 @@
 // src/app/(public)/page.tsx
 export const dynamic = "force-dynamic"
 
-import { prisma } from "@/lib/prisma"
-import { FeedGrid } from "@/components/feed/FeedGrid"
+import Link from "next/link"
 
-async function getEntries(page = 1) {
-  const PAGE_SIZE = 12
-  const [entries, total] = await prisma.$transaction([
-    prisma.entry.findMany({
-      where: { published: true },
-      orderBy: { date_taken: "desc" },
-      take: PAGE_SIZE,
-      skip: (page - 1) * PAGE_SIZE,
-      select: {
-        slug: true,
-        title: true,
-        date_taken: true,
-        media: {
-          where: { order: 0 },
-          select: { url: true, type: true },
-          take: 1,
-        },
-        location: {
-          select: { display_name: true },
-        },
-      },
-    }),
-    prisma.entry.count({ where: { published: true } }),
-  ])
-  return { entries, total, hasMore: page * PAGE_SIZE < total }
-}
+const PAGES = [
+  { href: "/friends", label: "Friends", sub: "Moments with the crew" },
+  { href: "/me", label: "Me", sub: "Personal captures" },
+  { href: "/together", label: "Together", sub: "Just the two of us" },
+]
 
-export default async function FeedPage() {
-  const { entries } = await getEntries(1)
-
+export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#0A0A0A]">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-16 py-6">
-        <span className="font-display text-xl font-medium tracking-wider text-[#F0EDE8]">
+    <main
+      className="min-h-screen flex flex-col items-center justify-center"
+      style={{ background: "var(--j-bg)" }}
+    >
+      {/* Logo */}
+      <div className="mb-16 text-center">
+        <h1
+          className="font-bold"
+          style={{
+            fontFamily: "var(--font-apple)",
+            fontSize: "clamp(2.5rem, 5vw, 4.5rem)",
+            letterSpacing: "-0.04em",
+            color: "var(--j-text-1)",
+            lineHeight: 0.95,
+          }}
+        >
           Journal
-        </span>
-      </header>
-
-      {/* Feed Grid */}
-      <div className="pt-24 pb-24 px-16">
-        {entries.length === 0 ? (
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <p className="text-[#555555] text-sm font-mono-custom tracking-widest uppercase">
-              Belum ada cerita
-            </p>
-          </div>
-        ) : (
-          <FeedGrid entries={entries} />
-        )}
+        </h1>
+        <p
+          className="text-xs tracking-widest uppercase font-mono-custom mt-3"
+          style={{ color: "var(--j-text-3)" }}
+        >
+          A personal archive
+        </p>
       </div>
+
+      {/* Page links */}
+      <nav className="flex flex-col items-center gap-0 w-full max-w-xs">
+        {PAGES.map((page, i) => (
+          <Link
+            key={page.href}
+            href={page.href}
+            className="group flex items-center justify-between w-full py-4 transition-opacity hover:opacity-50"
+            style={{
+              borderTop: i === 0 ? "1px solid var(--j-border)" : "none",
+              borderBottom: "1px solid var(--j-border)",
+            }}
+          >
+            <span
+              className="font-semibold"
+              style={{
+                fontFamily: "var(--font-apple)",
+                fontSize: "1.1rem",
+                letterSpacing: "-0.02em",
+                color: "var(--j-text-1)",
+              }}
+            >
+              {page.label}
+            </span>
+            <span
+              className="text-xs font-mono-custom"
+              style={{ color: "var(--j-text-3)" }}
+            >
+              {page.sub}
+            </span>
+          </Link>
+        ))}
+      </nav>
     </main>
   )
 }

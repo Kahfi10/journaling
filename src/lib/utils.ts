@@ -6,18 +6,23 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(date: Date | string): string {
-  return new Intl.DateTimeFormat("id-ID", {
+  const d = new Date(date)
+  // Gunakan en-US agar konsisten antara server dan client
+  return new Intl.DateTimeFormat("en-US", {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(date))
+    timeZone: "UTC",
+  }).format(d)
 }
 
 export function formatDateShort(date: Date | string): string {
-  return new Intl.DateTimeFormat("id-ID", {
+  const d = new Date(date)
+  return new Intl.DateTimeFormat("en-US", {
     month: "short",
     year: "numeric",
-  }).format(new Date(date))
+    timeZone: "UTC",
+  }).format(d)
 }
 
 export function formatDuration(seconds: number): string {

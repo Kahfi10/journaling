@@ -3,6 +3,7 @@ const nextConfig = {
   output: "standalone",
 
   images: {
+    qualities: [100, 90, 80, 75],
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
       { protocol: "https", hostname: "is1-ssl.mzstatic.com", pathname: "/**" },
