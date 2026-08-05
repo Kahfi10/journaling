@@ -153,7 +153,12 @@ export function FriendsInfoSection() {
     <section
       ref={sectionRef}
       className="px-8 pt-20 pb-24"
-      style={{ background: "var(--j-bg)", borderTop: "1px solid var(--j-border)" }}
+      style={{
+        background: "var(--j-bg)",
+        borderTop: "1px solid var(--j-border)",
+        position: "relative",
+        zIndex: 2,            // selalu di atas section gambar
+      }}
     >
       <div className="max-w-[1440px] mx-auto">
 
@@ -184,7 +189,7 @@ export function FriendsInfoSection() {
           <div>
             <p
               ref={paragraphRef}
-              className="font-semibold leading-tight"
+              className="font-light leading-tight"
               style={{
                 fontFamily: "var(--font-apple)",
                 fontSize: "clamp(1.6rem, 2.8vw, 2.6rem)",
@@ -230,7 +235,7 @@ export function FriendsInfoSection() {
               {HIGHLIGHTS.map(({ title, sub }) => (
                 <div key={title} className="info-highlight-item">
                   <p
-                    className="text-sm font-semibold"
+                    className="text-sm font-light"
                     style={{
                       color: "var(--j-text-1)",
                       fontFamily: "var(--font-apple)",
@@ -264,7 +269,7 @@ export function FriendsInfoSection() {
               {PLACES.map(({ name, region }) => (
                 <div key={name} className="info-place-item">
                   <p
-                    className="text-sm font-semibold"
+                    className="text-sm font-light"
                     style={{
                       color: "var(--j-text-1)",
                       fontFamily: "var(--font-apple)",

@@ -134,7 +134,7 @@
   .text-display-xl {
     font-family: var(--font-apple);
     font-size: 5.5rem;
-    font-weight: 700;
+    font-weight: 300;
     line-height: 1;
     letter-spacing: -0.04em;
   }
@@ -142,7 +142,7 @@
   .text-display-lg {
     font-family: var(--font-apple);
     font-size: 3.5rem;
-    font-weight: 700;
+    font-weight: 300;
     line-height: 1.05;
     letter-spacing: -0.03em;
   }
@@ -150,7 +150,7 @@
   .text-display-md {
     font-family: var(--font-apple);
     font-size: 2.25rem;
-    font-weight: 600;
+    font-weight: 300;
     line-height: 1.15;
     letter-spacing: -0.02em;
   }

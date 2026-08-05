@@ -40,7 +40,7 @@ export function EntryCard({ entry }: EntryCardProps) {
                 </span>
               </div>
             )}
-            <h2 className="text-white text-lg font-semibold leading-tight mb-1" style={{ letterSpacing: "-0.02em" }}>
+            <h2 className="text-white text-lg font-light leading-tight mb-1" style={{ letterSpacing: "-0.02em" }}>
               {entry.title}
             </h2>
             <p className="font-mono-custom text-[10px]" style={{ color: "rgba(255,255,255,0.5)" }}>

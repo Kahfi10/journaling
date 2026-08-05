@@ -116,7 +116,7 @@ export function EntryHero({ title, dateTaken, location, coverUrl }: EntryHeroPro
 
         <h1
           ref={titleRef}
-          className="text-white text-display-xl mb-5"
+          className="text-white text-display-xl font-light mb-5"
         >
           {title}
         </h1>

@@ -18,7 +18,7 @@ export default function HomePage() {
       {/* Logo */}
       <div className="mb-16 text-center">
         <h1
-          className="font-bold"
+          className="font-light"
           style={{
             fontFamily: "var(--font-apple)",
             fontSize: "clamp(2.5rem, 5vw, 4.5rem)",
@@ -50,7 +50,7 @@ export default function HomePage() {
             }}
           >
             <span
-              className="font-semibold"
+              className="font-light"
               style={{
                 fontFamily: "var(--font-apple)",
                 fontSize: "1.1rem",

@@ -9,7 +9,7 @@ import { SplitText } from "gsap/SplitText"
 import { useGSAP } from "@gsap/react"
 import { MapPin } from "lucide-react"
 import { FriendsInfoSection } from "./FriendsInfoSection"
-import { FriendsMarqueeText, FriendsFromTo } from "./FriendsSections"
+import { FriendsMarqueeText, FriendsFromTo, FriendsClaritySection, FriendsFullImage } from "./FriendsSections"
 import { formatDate } from "@/lib/utils"
 import type { EntryCard } from "@/types/entry"
 
@@ -158,7 +158,7 @@ export function FriendsPage({ entries }: FriendsPageProps) {
         <div className="absolute bottom-10 left-8 z-10 max-w-[65vw]">
           <h1
             ref={titleRef}
-            className="text-white font-bold leading-none"
+            className="text-white font-light leading-none"
             style={{
               fontFamily: "var(--font-apple)",
               fontSize: "clamp(3.5rem, 8vw, 7rem)",
@@ -171,6 +171,12 @@ export function FriendsPage({ entries }: FriendsPageProps) {
           </h1>
         </div>
       </section>
+
+      {/* ── CLARITY HEADLINE ── */}
+      <FriendsClaritySection />
+
+      {/* ── FULL IMAGE ── */}
+      <FriendsFullImage />
 
       {/* ── INFO SECTION ── */}
       <FriendsInfoSection />
@@ -193,7 +199,7 @@ export function FriendsPage({ entries }: FriendsPageProps) {
               {entries.length} moment{entries.length !== 1 ? "s" : ""}
             </p>
             <h2
-              className="font-bold"
+              className="font-light"
               style={{
                 fontFamily: "var(--font-apple)",
                 fontSize: "1.75rem",
@@ -273,7 +279,7 @@ function EntryGridCard({ entry }: { entry: EntryCard }) {
               </div>
             )}
             <h3
-              className="text-white font-semibold leading-tight"
+              className="text-white font-light leading-tight"
               style={{ fontSize: "1.05rem", letterSpacing: "-0.02em" }}
             >
               {entry.title}
