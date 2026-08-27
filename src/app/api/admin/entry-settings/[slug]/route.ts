@@ -3,7 +3,6 @@ import { entries } from "@/data/entries"
 import { getEntryBySlug } from "@/data/entries"
 import {
   normalizeMusicPayload,
-  normalizeSectionMusicPayload,
   removeEntrySettings,
   updateEntrySettings,
 } from "@/lib/entry-settings"
@@ -32,9 +31,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (!entry) {
     return NextResponse.json({ error: "Entry not found" }, { status: 404 })
   }
-
   const music = body.music === null ? null : normalizeMusicPayload(body.music, slug)
-  const sectionMusic = normalizeSectionMusicPayload(body.sectionMusic, slug)
+  const music = body.music === null ? null : normalizeMusicPayload(body.music, slug)
 
   updateEntrySettings(slug, {
     title: typeof body.title === "string" ? body.title : undefined,
@@ -47,7 +45,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     cover: typeof body.cover === "string" ? body.cover : undefined,
     description: typeof body.description === "string" ? body.description : undefined,
     music,
-    sectionMusic,
+    sectionMusic: body.sectionMusic === null ? null : undefined,
   })
 
   const updated = getEntryBySlug(slug)

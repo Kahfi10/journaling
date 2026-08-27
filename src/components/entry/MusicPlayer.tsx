@@ -1,239 +1,249 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Howl, Howler } from "howler"
 import { Music, Pause, Play, Volume2, VolumeX } from "lucide-react"
 import { getMusicDurationSeconds } from "@/lib/utils"
 import type { Music as MusicType } from "@/types/entry"
 
 interface MusicPlayerProps {
   music: MusicType | null
+  autoplay?: boolean
+  loop?: boolean
 }
+
+const DEFAULT_VOLUME = 0.72
+const FADE_IN_MS = 900
 
 function getTrackUrl(track: MusicType) {
   if (track.source === "ITUNES") {
     return track.preview_url ? `/api/audio/proxy?url=${encodeURIComponent(track.preview_url)}` : ""
   }
 
-  return track.file_url
+  return track.file_url ?? ""
 }
 
-export function MusicPlayer({ music }: MusicPlayerProps) {
-  const soundRef = useRef<Howl | null>(null)
-  const [activeMusic, setActiveMusic] = useState<MusicType | null>(music)
+export function MusicPlayer({ music, autoplay = true, loop = true }: MusicPlayerProps) {
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const objectUrlRef = useRef<string | null>(null)
+  const fadeFrameRef = useRef<number | null>(null)
+  const interactionRef = useRef(false)
+  const targetVolumeRef = useRef(DEFAULT_VOLUME)
+  const mutedRef = useRef(false)
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "playing" | "paused" | "error">(
     music ? "loading" : "idle"
   )
   const [muted, setMuted] = useState(false)
-  const volumeRef = useRef(0.72)
-  const mutedRef = useRef(false)
-  const pendingAutoplayRef = useRef(true)
-  const userInteractedRef = useRef(false)
-  const durationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [playing, setPlaying] = useState(false)
 
-  const audioUrl = useMemo(() => (activeMusic ? getTrackUrl(activeMusic) : ""), [activeMusic])
-  const durationSec = useMemo(() => (activeMusic ? getMusicDurationSeconds(activeMusic.duration) : 0), [activeMusic])
+  const audioUrl = useMemo(() => (music ? getTrackUrl(music) : ""), [music])
+  const durationSeconds = useMemo(() => (music ? getMusicDurationSeconds(music.duration) : 0), [music])
 
-  const clearCurrentSound = useCallback(() => {
-    if (durationTimerRef.current) {
-      clearTimeout(durationTimerRef.current)
-      durationTimerRef.current = null
-    }
-
-    if (soundRef.current) {
-      soundRef.current.stop()
-      soundRef.current.unload()
-      soundRef.current = null
+  const clearFade = useCallback(() => {
+    if (fadeFrameRef.current !== null) {
+      window.cancelAnimationFrame(fadeFrameRef.current)
+      fadeFrameRef.current = null
     }
   }, [])
 
-  const playCurrentSound = useCallback(() => {
-    const sound = soundRef.current
-    if (!sound || !activeMusic) return
+  const fadeVolume = useCallback(
+    (toVolume: number, durationMs: number) => {
+      const audio = audioRef.current
+      if (!audio) return
 
-    sound.seek(activeMusic.start_time ?? 0)
-    sound.volume(mutedRef.current ? 0 : volumeRef.current)
-    sound.play()
-  }, [activeMusic])
+      clearFade()
 
-  const allowPlaybackIfReady = useCallback(() => {
-    if (!userInteractedRef.current) return
-    if (!pendingAutoplayRef.current) return
-    if (status !== "ready") return
+      const fromVolume = audio.volume
+      const start = window.performance.now()
 
-    pendingAutoplayRef.current = false
-    playCurrentSound()
-  }, [playCurrentSound, status])
+      const step = (now: number) => {
+        const progress = Math.min((now - start) / durationMs, 1)
+        audio.volume = fromVolume + (toVolume - fromVolume) * progress
 
-  const switchTrack = useCallback(
-    (nextMusic: MusicType) => {
-      const nextUrl = getTrackUrl(nextMusic)
-      const currentUrl = activeMusic ? getTrackUrl(activeMusic) : ""
-      const sameTrack = currentUrl === nextUrl
-
-      pendingAutoplayRef.current = true
-
-      if (sameTrack && soundRef.current) {
-        setActiveMusic(nextMusic)
-        setStatus(soundRef.current.playing() ? "playing" : "ready")
-        soundRef.current.seek(nextMusic.start_time ?? 0)
-        soundRef.current.volume(mutedRef.current ? 0 : volumeRef.current)
-        if (!soundRef.current.playing()) {
-          soundRef.current.play()
+        if (progress < 1) {
+          fadeFrameRef.current = window.requestAnimationFrame(step)
         }
-        return
       }
 
-      clearCurrentSound()
-      setMuted(false)
-      setStatus("loading")
-      setActiveMusic(nextMusic)
+      fadeFrameRef.current = window.requestAnimationFrame(step)
     },
-    [activeMusic, clearCurrentSound]
+    [clearFade]
+  )
+
+  const startPlayback = useCallback(
+    async (restart = false) => {
+      const audio = audioRef.current
+      if (!audio || !music) return false
+
+      try {
+        if (restart) {
+          audio.currentTime = music.start_time ?? 0
+        }
+
+        audio.volume = mutedRef.current ? 0 : 0
+        const playResult = audio.play()
+        if (playResult) {
+          await playResult
+        }
+
+        setPlaying(true)
+        setStatus("playing")
+
+        if (!mutedRef.current) {
+          fadeVolume(targetVolumeRef.current, FADE_IN_MS)
+        }
+
+        return true
+      } catch {
+        setPlaying(false)
+        setStatus("ready")
+        return false
+      }
+    },
+    [fadeVolume, music]
   )
 
   useEffect(() => {
-    ;(window as unknown as Record<string, unknown>).__musicPlayer = {
-      playTrack: switchTrack,
-      fadeOut: (ms: number) => {
-        const sound = soundRef.current
-        if (sound?.playing()) {
-          sound.fade(sound.volume(), 0, ms)
-        }
-      },
-      fadeIn: (ms: number) => {
-        const sound = soundRef.current
-        if (sound && !sound.playing()) {
-          sound.play()
-        }
-        if (sound) {
-          sound.fade(sound.volume(), mutedRef.current ? 0 : volumeRef.current, ms)
-        }
-      },
-    }
-
-    const markInteraction = () => {
-      userInteractedRef.current = true
-      allowPlaybackIfReady()
-    }
-
-    window.addEventListener("pointerdown", markInteraction, { passive: true, once: true })
-    window.addEventListener("keydown", markInteraction, { passive: true, once: true })
-    window.addEventListener("touchstart", markInteraction, { passive: true, once: true })
-
-    return () => {
-      delete (window as unknown as Record<string, unknown>).__musicPlayer
-      window.removeEventListener("pointerdown", markInteraction)
-      window.removeEventListener("keydown", markInteraction)
-      window.removeEventListener("touchstart", markInteraction)
-    }
-  }, [allowPlaybackIfReady, switchTrack])
-
-  useEffect(() => {
-    if (!activeMusic || !audioUrl) {
+    if (!audioUrl) {
       setStatus("idle")
+      setPlaying(false)
       return
     }
 
-    Howler.autoUnlock = true
+    const controller = new AbortController()
+    let audio: HTMLAudioElement | null = null
+    let revokedObjectUrl: string | null = null
+    setStatus("loading")
+    setPlaying(false)
 
-    const sound = new Howl({
-      src: [audioUrl],
-      html5: true,
-      format: ["mp3", "aac", "mp4", "m4a"],
-      volume: mutedRef.current ? 0 : volumeRef.current,
-      preload: true,
-      onload: () => {
-        setStatus("ready")
-        allowPlaybackIfReady()
-      },
-      onloaderror: (_id, err) => {
-        console.error("[Music] load error:", err)
-        setStatus("error")
-      },
-      onplay: () => setStatus("playing"),
-      onpause: () => setStatus("paused"),
-      onstop: () => setStatus("paused"),
-      onend: () => {
-        setStatus("paused")
-        if (durationTimerRef.current) {
-          clearTimeout(durationTimerRef.current)
-          durationTimerRef.current = null
+    const handlePlay = () => {
+      setPlaying(true)
+      setStatus("playing")
+    }
+
+    const handlePause = () => {
+      setPlaying(false)
+      setStatus("paused")
+    }
+
+    const handleEnded = () => {
+      setPlaying(false)
+      setStatus("paused")
+    }
+
+    const handleError = () => {
+      setPlaying(false)
+      setStatus("error")
+    }
+
+    const load = async () => {
+      try {
+        const response = await fetch(audioUrl, { cache: "no-store", signal: controller.signal })
+        if (!response.ok) {
+          throw new Error(`Audio request failed: ${response.status}`)
         }
-      },
-      onplayerror: (_id, err) => {
-        console.warn("[Music] play blocked:", err)
-        setStatus("ready")
-      },
-    })
 
-    soundRef.current = sound
+        const blob = await response.blob()
+        if (controller.signal.aborted) return
+
+        revokedObjectUrl = URL.createObjectURL(blob)
+        objectUrlRef.current = revokedObjectUrl
+
+        audio = new Audio(revokedObjectUrl)
+        audioRef.current = audio
+        audio.preload = "auto"
+        audio.loop = loop
+        audio.volume = mutedRef.current ? 0 : targetVolumeRef.current
+        audio.addEventListener("play", handlePlay)
+        audio.addEventListener("pause", handlePause)
+        audio.addEventListener("ended", handleEnded)
+        audio.addEventListener("error", handleError)
+        audio.load()
+
+        setStatus("ready")
+        if (autoplay) {
+          startPlayback(true).catch(() => undefined)
+        }
+      } catch {
+        if (!controller.signal.aborted) {
+          setPlaying(false)
+          setStatus("error")
+        }
+      }
+    }
+
+    load().catch(() => undefined)
+
+    const enableOnInteraction = () => {
+      interactionRef.current = true
+      if (autoplay) {
+        startPlayback(true).catch(() => undefined)
+      }
+    }
+
+    window.addEventListener("pointerdown", enableOnInteraction, { passive: true, once: true })
+    window.addEventListener("keydown", enableOnInteraction, { passive: true, once: true })
+    window.addEventListener("touchstart", enableOnInteraction, { passive: true, once: true })
 
     return () => {
-      clearCurrentSound()
+      clearFade()
+      controller.abort()
+      if (audio) {
+        audio.pause()
+        audio.removeEventListener("play", handlePlay)
+        audio.removeEventListener("pause", handlePause)
+        audio.removeEventListener("ended", handleEnded)
+        audio.removeEventListener("error", handleError)
+      }
+      window.removeEventListener("pointerdown", enableOnInteraction)
+      window.removeEventListener("keydown", enableOnInteraction)
+      window.removeEventListener("touchstart", enableOnInteraction)
+      if (revokedObjectUrl) {
+        URL.revokeObjectURL(revokedObjectUrl)
+      }
+      objectUrlRef.current = null
+      audioRef.current = null
     }
-  }, [activeMusic, audioUrl, allowPlaybackIfReady, clearCurrentSound, playCurrentSound])
+  }, [audioUrl, autoplay, clearFade, loop, startPlayback])
 
   useEffect(() => {
-    const sound = soundRef.current
-    if (!sound) return
-    sound.volume(muted ? 0 : volumeRef.current)
+    const audio = audioRef.current
+    if (!audio) return
+
+    audio.volume = mutedRef.current ? 0 : targetVolumeRef.current
   }, [muted])
 
-  useEffect(() => {
-    const sound = soundRef.current
-    if (!sound || status !== "playing" || !durationSec) return
+  const togglePlayback = () => {
+    const audio = audioRef.current
+    if (!audio || !music) return
 
-    if (durationTimerRef.current) {
-      clearTimeout(durationTimerRef.current)
+    interactionRef.current = true
+
+    if (audio.paused) {
+      startPlayback(false).catch(() => undefined)
+      return
     }
 
-    durationTimerRef.current = setTimeout(() => {
-      if (soundRef.current?.playing()) {
-        soundRef.current.fade(soundRef.current.volume(), 0, 220)
-        window.setTimeout(() => soundRef.current?.stop(), 250)
-      }
-    }, durationSec * 1000)
-  }, [durationSec, status])
+    audio.pause()
+  }
 
   const toggleMute = () => {
-    const sound = soundRef.current
-    if (!sound) return
+    const audio = audioRef.current
+    if (!audio) return
 
     if (muted) {
-      sound.volume(volumeRef.current)
+      audio.volume = 0
+      if (playing) {
+        fadeVolume(targetVolumeRef.current, 220)
+      }
     } else {
-      sound.volume(0)
+      audio.volume = 0
     }
 
     mutedRef.current = !muted
     setMuted((value) => !value)
   }
 
-  const togglePlayback = () => {
-    const sound = soundRef.current
-    if (!sound || !activeMusic) return
-    userInteractedRef.current = true
-
-    if (sound.playing()) {
-      sound.pause()
-      return
-    }
-
-    if (sound.state() === "loaded") {
-      sound.seek(activeMusic.start_time ?? 0)
-      sound.volume(mutedRef.current ? 0 : volumeRef.current)
-      sound.play()
-      return
-    }
-
-    if (sound.state() === "unloaded") {
-      sound.load()
-      return
-    }
-
-    sound.play()
-  }
+  if (!music || !audioUrl) return null
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-[100] flex justify-center pointer-events-none">
@@ -250,15 +260,14 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
           onClick={togglePlayback}
           className="flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
           style={{ borderColor: "var(--j-border)", background: "var(--j-bg)", color: "var(--j-text-1)" }}
-          aria-label={status === "playing" ? "Pause" : "Play"}
-          disabled={!activeMusic || status === "idle" || status === "error"}
+          aria-label={playing ? "Pause music" : "Play music"}
         >
-          {status === "playing" ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         </button>
 
-        {activeMusic?.album_art_url ? (
+        {music.album_art_url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={activeMusic.album_art_url} alt={activeMusic.track_name ?? ""} className="h-9 w-9 rounded-full object-cover" />
+          <img src={music.album_art_url} alt={music.track_name ?? ""} className="h-9 w-9 rounded-full object-cover" />
         ) : (
           <div className="flex h-9 w-9 items-center justify-center rounded-full border" style={{ borderColor: "var(--j-border)" }}>
             <Music className="h-4 w-4" style={{ color: "var(--j-text-3)" }} />
@@ -267,15 +276,16 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
 
         <div className="min-w-0">
           <p className="truncate text-sm font-medium leading-tight">
-            {activeMusic?.track_name ?? "Music ready"}
+            {music.track_name ?? "Background music"}
           </p>
           <p className="truncate text-[10px] tracking-[0.22em] uppercase" style={{ color: "var(--j-text-3)" }}>
             {status === "loading" && "Loading"}
-            {status === "ready" && "Autoplay"}
-            {status === "playing" && (activeMusic?.artist_name ?? "Playing")}
+            {status === "ready" && "Ready"}
+            {status === "playing" && (music.artist_name ?? "Playing")}
             {status === "paused" && "Paused"}
-            {status === "idle" && "Waiting"}
+            {status === "idle" && "Idle"}
             {status === "error" && "Unavailable"}
+            {durationSeconds > 0 ? ` · ${Math.round(durationSeconds)}s loop` : ""}
           </p>
         </div>
 
@@ -284,8 +294,7 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
           onClick={toggleMute}
           className="flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
           style={{ borderColor: "var(--j-border)", background: "var(--j-bg)", color: "var(--j-text-1)" }}
-          aria-label={muted ? "Unmute" : "Mute"}
-          disabled={!soundRef.current}
+          aria-label={muted ? "Unmute music" : "Mute music"}
         >
           {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
         </button>
