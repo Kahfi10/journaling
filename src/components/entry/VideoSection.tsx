@@ -26,15 +26,36 @@ export function VideoSection({ media, index, music }: VideoSectionProps) {
     () => {
       if (!sectionRef.current) return
 
-      // Caption reveal
+      gsap.from(sectionRef.current, {
+        opacity: 0,
+        y: 50,
+        duration: 0.8,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
+      })
+
       if (captionRef.current && media.caption) {
-        gsap.set(captionRef.current, { opacity: 0, y: 16 })
+        gsap.from(captionRef.current, {
+          opacity: 0,
+          y: 14,
+          duration: 0.6,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 75%",
+            toggleActions: "play none none reverse",
+          },
+        })
       }
 
       ScrollTrigger.create({
         trigger: sectionRef.current,
-        start: "top center",
-        end: "bottom center",
+        start: "top 60%",
+        end: "bottom 40%",
 
         onEnter: () => {
           // Fade out music, play video
@@ -54,7 +75,6 @@ export function VideoSection({ media, index, music }: VideoSectionProps) {
           videoRef.current?.pause()
           if (videoRef.current) videoRef.current.currentTime = 0
           if (music) fadeIn(500)
-          if (captionRef.current) gsap.to(captionRef.current, { opacity: 0, duration: 0.3 })
         },
 
         onEnterBack: () => {
@@ -64,16 +84,12 @@ export function VideoSection({ media, index, music }: VideoSectionProps) {
           } else {
             videoRef.current?.play()
           }
-          if (captionRef.current && media.caption) {
-            gsap.to(captionRef.current, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" })
-          }
         },
 
         onLeaveBack: () => {
           videoRef.current?.pause()
           if (videoRef.current) videoRef.current.currentTime = 0
           if (music) fadeIn(500)
-          if (captionRef.current) gsap.to(captionRef.current, { opacity: 0, duration: 0.3 })
         },
       })
     },
@@ -98,7 +114,7 @@ export function VideoSection({ media, index, music }: VideoSectionProps) {
       <div className="absolute inset-0 bg-black/10" />
 
       {media.caption && (
-        <div ref={captionRef} className="absolute bottom-20 sm:bottom-24 left-0 right-0 px-5 sm:px-12 md:px-20">
+        <div ref={captionRef} className="absolute left-5 sm:left-8 md:left-16 bottom-6 sm:bottom-10">
           <EntryCaption caption={media.caption} />
         </div>
       )}

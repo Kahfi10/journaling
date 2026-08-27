@@ -3,9 +3,27 @@
 // Tambah entry baru dengan menambah object ke array ini
 
 import type { Entry } from "./types"
+import { mergeEntrySettings } from "@/lib/entry-settings"
 
 export const entries: Entry[] = [
   // ── FRIENDS ──────────────────────────────────────────────────────────────
+  {
+    slug: "samalona-2026",
+    title: "Samalona",
+    date: "2026-08-16",
+    location: "Samalona, Makassar",
+    category: "friends",
+    cover: "/images/memories-samalona/DSC00577.JPG",
+    description: "A slow island day that turned into one of those memories you keep replaying later — warm water, loud laughter, and the kind of escape that makes everything feel lighter.",
+    media: [
+      { url: "/images/memories-samalona/DSC00577.JPG", type: "PHOTO", caption: "Leaving with salt on our skin" },
+      { url: "/images/memories-samalona/DSC01305.JPG", type: "PHOTO", caption: "Arrival and open water" },
+      { url: "/images/memories-samalona/DSC01303.JPG", type: "PHOTO", caption: "Before the swim" },
+      { url: "/images/memories-samalona/DSC01298.JPG", type: "PHOTO", caption: "Small moments, big mood" },
+      { url: "/images/memories-samalona/DSC01297.JPG", type: "PHOTO", caption: "Together on the shore" },
+      { url: "/images/memories-samalona/DSC00623.JPG", type: "PHOTO", caption: "The island view" },
+    ],
+  },
   {
     slug: "demo-1",
     title: "Late Night Drive",
@@ -53,12 +71,13 @@ export const entries: Entry[] = [
 
 // Helper — get by slug
 export function getEntryBySlug(slug: string): Entry | undefined {
-  return entries.find((e) => e.slug === slug)
+  const entry = entries.find((e) => e.slug === slug)
+  return entry ? mergeEntrySettings(entry) : undefined
 }
 
 // Helper — get by category
 export function getEntriesByCategory(category: Entry["category"]): Entry[] {
-  return entries.filter((e) => e.category === category)
+  return entries.map(mergeEntrySettings).filter((e) => e.category === category)
 }
 
 // Helper — get all slugs (for generateStaticParams)

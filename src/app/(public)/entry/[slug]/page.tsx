@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { getEntryBySlug, getAllSlugs } from "@/data/entries"
 import { EntryHero } from "@/components/entry/EntryHero"
 import { EntryStory } from "@/components/entry/EntryStory"
+import { EntryMemoryIntro } from "@/components/entry/EntryMemoryIntro"
 import { PhotoSection } from "@/components/entry/PhotoSection"
 import { VideoSection } from "@/components/entry/VideoSection"
 import { EntryFooter } from "@/components/entry/EntryFooter"
@@ -78,6 +79,7 @@ export default async function EntryDetailPage({ params }: PageProps) {
           dateTaken={new Date(entry.date)}
           location={location}
           coverUrl={entry.cover}
+          description={entry.description}
         />
 
         <EntryStory 
@@ -85,6 +87,22 @@ export default async function EntryDetailPage({ params }: PageProps) {
           dateTaken={new Date(entry.date)} 
           category={entry.category} 
           description={entry.description || "A collection of fragments and memories from this particular day, captured exactly as they happened."} 
+        />
+
+        <EntryMemoryIntro
+          title={entry.title}
+          dateTaken={new Date(entry.date)}
+          location={location}
+          media={entry.media.map((media) => ({
+            id: media.url,
+            url: media.url,
+            public_id: "",
+            type: media.type as "PHOTO" | "VIDEO",
+            caption: media.caption ?? null,
+            order: 0,
+            created_at: new Date(),
+            entry_id: entry.slug,
+          }))}
         />
 
         {entry.media.map((media, index) => {

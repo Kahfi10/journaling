@@ -19,27 +19,30 @@ interface EntryStoryProps {
 export function EntryStory({ location, dateTaken, category, description }: EntryStoryProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const paragraphRef = useRef<HTMLParagraphElement>(null)
+  const metaRef = useRef<HTMLDivElement>(null)
 
   useGSAP(() => {
-    // Left meta columns animation
-    gsap.from(".story-meta-item", {
-      opacity: 0,
-      y: 20,
-      duration: 0.8,
-      ease: "power2.out",
-      stagger: 0.1,
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top 85%",
-      }
-    })
+    const metaItems = metaRef.current?.querySelectorAll(".story-meta-item")
+    if (metaItems && metaItems.length > 0) {
+      gsap.from(metaItems, {
+        opacity: 0,
+        y: 18,
+        duration: 0.7,
+        ease: "power2.out",
+        stagger: 0.08,
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top 85%",
+        },
+      })
+    }
 
-    // Right description text split-lines reveal
+    let split: SplitText | null = null
     if (paragraphRef.current && description) {
-      const split = new SplitText(paragraphRef.current, { type: "lines" })
+      split = new SplitText(paragraphRef.current, { type: "lines" })
       gsap.from(split.lines, {
         opacity: 0,
-        y: 40,
+        y: 32,
         duration: 0.9,
         ease: "power3.out",
         stagger: 0.08,
@@ -49,20 +52,22 @@ export function EntryStory({ location, dateTaken, category, description }: Entry
         }
       })
     }
+
+    return () => {
+      split?.revert()
+    }
   }, { scope: containerRef })
 
   return (
     <section
       ref={containerRef}
-      className="px-5 sm:px-8 lg:px-16 py-20 md:py-32 relative z-10"
+      className="px-5 sm:px-8 lg:px-16 py-20 md:py-28 relative z-10"
       style={{ background: "var(--j-bg)" }} // Using light theme background
     >
-      <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row gap-16 md:gap-24 lg:gap-32">
-        
-        {/* Left Column: Meta Data */}
-        <div className="flex flex-row md:flex-col gap-8 md:gap-12 w-full md:w-[300px] shrink-0 pt-2 flex-wrap">
+      <div className="max-w-[1440px] mx-auto grid gap-10 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+        <div ref={metaRef} className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-1 gap-5 md:gap-8">
           {location && (
-            <div className="story-meta-item flex-1 min-w-[120px]">
+            <div className="story-meta-item rounded-2xl border px-4 py-4" style={{ borderColor: "var(--j-border)" }}>
               <p className="text-[10px] tracking-widest uppercase mb-2 font-mono-custom" style={{ color: "var(--j-text-3)" }}>
                 Location
               </p>
@@ -72,7 +77,7 @@ export function EntryStory({ location, dateTaken, category, description }: Entry
             </div>
           )}
           
-          <div className="story-meta-item flex-1 min-w-[120px]">
+          <div className="story-meta-item rounded-2xl border px-4 py-4" style={{ borderColor: "var(--j-border)" }}>
             <p className="text-[10px] tracking-widest uppercase mb-2 font-mono-custom" style={{ color: "var(--j-text-3)" }}>
               Date
             </p>
@@ -81,7 +86,7 @@ export function EntryStory({ location, dateTaken, category, description }: Entry
             </p>
           </div>
 
-          <div className="story-meta-item flex-1 min-w-[120px]">
+          <div className="story-meta-item rounded-2xl border px-4 py-4" style={{ borderColor: "var(--j-border)" }}>
             <p className="text-[10px] tracking-widest uppercase mb-2 font-mono-custom" style={{ color: "var(--j-text-3)" }}>
               Category
             </p>
@@ -91,16 +96,18 @@ export function EntryStory({ location, dateTaken, category, description }: Entry
           </div>
         </div>
 
-        {/* Right Column: Editorial Description */}
-        <div className="flex-1 max-w-4xl">
+        <div className="relative">
+          <div className="absolute -top-6 left-0 text-[10px] tracking-[0.32em] uppercase font-mono-custom" style={{ color: "var(--j-text-4)" }}>
+            Story
+          </div>
           {description ? (
             <p
               ref={paragraphRef}
-              className="font-light leading-snug"
+              className="font-light leading-snug max-w-4xl"
               style={{
                 fontFamily: "var(--font-apple)",
-                fontSize: "clamp(1.5rem, 3vw, 2.5rem)",
-                letterSpacing: "-0.02em",
+                fontSize: "clamp(1.4rem, 3vw, 2.3rem)",
+                letterSpacing: "-0.025em",
                 color: "var(--j-text-1)",
               }}
             >
@@ -112,7 +119,6 @@ export function EntryStory({ location, dateTaken, category, description }: Entry
             </p>
           )}
         </div>
-
       </div>
     </section>
   )

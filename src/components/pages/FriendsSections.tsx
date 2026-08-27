@@ -73,8 +73,9 @@ export function FriendsMarqueeText() {
 export function FriendsFromTo() {
   const ref = useRef<HTMLElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
+  const leadRef = useRef<HTMLParagraphElement>(null)
+  const metaRef = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLDivElement>(null)
-  const bodyRef = useRef<HTMLParagraphElement>(null)
 
   useGSAP(() => {
     // Title — fade in + slide up
@@ -94,32 +95,29 @@ export function FriendsFromTo() {
       })
     }
 
-    // Image — scale up dari 0.92 + fade
+    gsap.from([leadRef.current, metaRef.current], {
+      y: 20,
+      opacity: 0,
+      duration: 0.8,
+      ease: "power2.out",
+      stagger: 0.12,
+      scrollTrigger: {
+        trigger: ref.current,
+        start: "top 82%",
+        toggleActions: "play none none reverse",
+      },
+    })
+
     if (imgRef.current) {
       gsap.from(imgRef.current, {
-        scale: 0.93,
+        y: 30,
+        scale: 0.98,
         opacity: 0,
-        duration: 1.2,
-        ease: "power2.out",
+        duration: 1.1,
+        ease: "power3.out",
         scrollTrigger: {
           trigger: imgRef.current,
           start: "top 85%",
-          toggleActions: "play none none reverse",
-        },
-      })
-    }
-
-    // Body text
-    if (bodyRef.current) {
-      gsap.from(bodyRef.current, {
-        y: 20,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power2.out",
-        delay: 0.2,
-        scrollTrigger: {
-          trigger: bodyRef.current,
-          start: "top 88%",
           toggleActions: "play none none reverse",
         },
       })
@@ -129,58 +127,76 @@ export function FriendsFromTo() {
   return (
     <section
       ref={ref}
-      className="px-5 sm:px-8 lg:px-16 py-16 md:py-24"
-      style={{ background: "var(--j-bg)", borderTop: "1px solid var(--j-border)" }}
+      className="relative isolate"
+      style={{ background: "var(--j-bg)", borderTop: "1px solid var(--j-border)", overflow: "hidden" }}
     >
-      <div className="max-w-[1440px] mx-auto">
-
-        <div className="text-center mb-10 md:mb-16">
-          <h2
-            ref={titleRef}
-            className="font-light leading-tight"
-            style={{
-              fontFamily: "var(--font-apple)",
-              fontSize: "clamp(1.2rem, 2.5vw, 2.2rem)",
-              letterSpacing: "-0.025em",
-              color: "var(--j-text-1)",
-            }}
-          >
-            From Strangers<br />
-            to Everything
-          </h2>
-        </div>
-
-        {/* Sketch image — full width on mobile */}
+      <div
+        ref={imgRef}
+        className="relative w-screen"
+        style={{
+          height: "100vh",
+          marginLeft: "calc(50% - 50vw)",
+          marginRight: "calc(50% - 50vw)",
+          background: "var(--j-bg-alt)",
+        }}
+      >
+        <Image
+          src="/images/hero-image/IMG_6175.JPG.jpeg"
+          alt="friends latest"
+          fill
+          className="object-cover"
+          quality={90}
+          sizes="100vw"
+          priority
+        />
         <div
-          ref={imgRef}
-          className="relative w-full overflow-hidden rounded-lg"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            aspectRatio: "16/9",
-            background: "#F8F7F4",
-            border: "1px solid var(--j-border)",
-            maxWidth: "900px",
-            margin: "0 auto",
+            background: "linear-gradient(to top, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.12) 35%, transparent 68%)",
           }}
-        >
-          <div className="absolute inset-0" style={{ filter: "grayscale(1) contrast(1.1)" }}>
-            <Image src="/images/hero-image/IMG_5337.JPG.jpeg" alt="sketch base" fill className="object-cover" quality={90} sizes="(max-width: 900px) 100vw, 900px" />
+        />
+        <div className="absolute left-5 right-5 bottom-5 sm:left-8 sm:right-8 sm:bottom-8">
+          <div className="max-w-3xl">
+            <p className="text-[10px] tracking-[0.32em] uppercase text-white/70 mb-3">
+              Archive / 01
+            </p>
+            <h2
+              ref={titleRef}
+              className="font-light leading-[0.92] text-white mb-4"
+              style={{
+                fontFamily: "var(--font-apple)",
+                fontSize: "clamp(2.4rem, 5vw, 6rem)",
+                letterSpacing: "-0.05em",
+              }}
+            >
+              From Strangers
+              <br />
+              to Everything
+            </h2>
+            <p
+              ref={leadRef}
+              className="text-sm sm:text-base max-w-xl leading-relaxed text-white/80 mb-4"
+              style={{ fontFamily: "var(--font-apple)" }}
+            >
+              Every great friendship begins with something small — a glance, a laugh,
+              a shared direction. The rest is built over time.
+            </p>
+            <div ref={metaRef} className="flex flex-wrap gap-2">
+              {["Since 2023", "Late drives", "Shared tables"].map((item) => (
+                <span
+                  key={item}
+                  className="inline-flex items-center rounded-full border px-3 py-1 text-[10px] tracking-[0.22em] uppercase text-white/75"
+                  style={{
+                    borderColor: "rgba(255,255,255,0.26)",
+                    fontFamily: "var(--font-apple)",
+                  }}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
-          <div className="absolute inset-0" style={{ filter: "grayscale(1) invert(1) blur(6px)", mixBlendMode: "color-dodge" }}>
-            <Image src="/images/hero-image/IMG_5337.JPG.jpeg" alt="sketch layer" fill className="object-cover" quality={90} sizes="(max-width: 900px) 100vw, 900px" aria-hidden="true" />
-          </div>
-          <div className="absolute inset-0 pointer-events-none" style={{ backdropFilter: "contrast(1.4) brightness(0.95)", mixBlendMode: "multiply" }} />
         </div>
-
-        <p
-          ref={bodyRef}
-          className="text-center mt-8 text-sm max-w-xl mx-auto leading-relaxed px-4"
-          style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)", letterSpacing: "0.01em" }}
-        >
-          Every great friendship starts with a first moment —
-          a glance, a word, a shared laugh.
-          What comes after is everything.
-        </p>
-
       </div>
     </section>
   )
@@ -275,7 +291,6 @@ export function FriendsFullImage() {
   useGSAP(() => {
     if (!imgRef.current) return
 
-    // Reveal fade in
     gsap.from(imgRef.current, {
       opacity: 0,
       duration: 1.2,
@@ -308,7 +323,6 @@ export function FriendsFullImage() {
         isolation: "isolate",
         background: "var(--j-bg)",
         borderTop: "1px solid var(--j-border)",
-        // overflow hidden di section agar parallax tidak bocor ke section lain
         overflow: "hidden",
       }}
     >
@@ -320,27 +334,21 @@ export function FriendsFullImage() {
           background: "var(--j-bg-alt)",
         }}
       >
-        {/* Inner image dengan scale lebih besar untuk buffer parallax */}
         <div
           className="full-img-inner absolute"
           style={{
-            top: "-150px", bottom: "-150px", left: 0, right: 0, // buffer atas-bawah agar tidak ada gap
+            top: "-150px", bottom: "-150px", left: 0, right: 0,
           }}
         >
           <Image
-            src="/images/hero-image/IMG_6175.JPG.jpeg"
-            alt="Friends"
+            src="/images/hero-image/WhatsApp Image 2026-08-27 at 10.19.25.jpeg"
+            alt="friends latest"
             fill
             className="object-cover"
-            quality={100}
+            quality={90}
             sizes="100vw"
           />
         </div>
-        {/* Subtle dark overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "rgba(0,0,0,0.12)", zIndex: 1 }}
-        />
       </div>
     </section>
   )
