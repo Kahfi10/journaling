@@ -434,11 +434,10 @@ export function FriendsSelectedMemories({ entries }: { entries: Entry[] }) {
   const rest = displayEntries.slice(1)
 
   return (
-    <section ref={sectionRef} className="px-5 sm:px-8 lg:px-16 py-20 md:py-28" style={{ background: "var(--j-bg)" }}>
-      <div className="max-w-5xl mx-auto">
-
-        {/* Header */}
-        <div className="selected-heading mb-10 flex items-end justify-between border-b pb-5" style={{ borderColor: "var(--j-border)" }}>
+    <section ref={sectionRef} className="py-16 md:py-24" style={{ background: "var(--j-bg)" }}>
+      {/* Header — full width with side padding */}
+      <div className="px-5 sm:px-8 lg:px-12 xl:px-16 mb-8">
+        <div className="selected-heading flex items-end justify-between border-b pb-5 max-w-[1600px] mx-auto" style={{ borderColor: "var(--j-border)" }}>
           <h2 className="font-light leading-none" style={{ fontFamily: "var(--font-apple)", fontSize: "clamp(2rem, 4vw, 3rem)", letterSpacing: "-0.03em", color: "var(--j-text-1)" }}>
             All Memories.
           </h2>
@@ -446,11 +445,13 @@ export function FriendsSelectedMemories({ entries }: { entries: Entry[] }) {
             {entries.length === 0 ? "—" : `${entries.length} moment${entries.length !== 1 ? "s" : ""}`}
           </p>
         </div>
+      </div>
 
-        {/* Hero entry */}
-        {hero && (
-          <Link href={`/entry/${hero.slug}`} className="mem-hero group block mb-5">
-            <div className="relative w-full overflow-hidden rounded-2xl" style={{ aspectRatio: "21/9", background: "var(--j-bg-alt)" }}>
+      {/* Hero entry — edge-to-edge with thin side padding */}
+      {hero && (
+        <div className="px-5 sm:px-8 lg:px-12 xl:px-16 mb-3">
+          <Link href={`/entry/${hero.slug}`} className="mem-hero group block">
+            <div className="relative w-full overflow-hidden rounded-2xl" style={{ aspectRatio: "16/7", background: "var(--j-bg-alt)" }}>
               <div className="selected-img-inner absolute inset-[-8%]">
                 <Image
                   src={hero.cover || hero.media[0]?.url || ""}
@@ -460,24 +461,26 @@ export function FriendsSelectedMemories({ entries }: { entries: Entry[] }) {
                   sizes="100vw"
                 />
               </div>
-              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.08) 55%, transparent 100%)" }} />
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.06) 50%, transparent 100%)" }} />
               <div className="absolute bottom-6 left-7 right-7 flex items-end justify-between">
                 <div>
                   <p className="text-[10px] tracking-[0.3em] uppercase text-white/55 mb-1.5 font-mono-custom">01 / Hero</p>
-                  <h3 className="text-2xl md:text-3xl font-light text-white" style={{ fontFamily: "var(--font-apple)", letterSpacing: "-0.03em" }}>
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-light text-white" style={{ fontFamily: "var(--font-apple)", letterSpacing: "-0.03em" }}>
                     {hero.title}
                   </h3>
                   <p className="text-sm text-white/55 mt-1">{hero.location}</p>
                 </div>
-                <span className="text-xs font-mono-custom text-white/35 shrink-0">{formatDate(hero.date)}</span>
+                <span className="text-xs font-mono-custom text-white/35 shrink-0 hidden sm:block">{formatDate(hero.date)}</span>
               </div>
             </div>
           </Link>
-        )}
+        </div>
+      )}
 
-        {/* Grid — rest of entries */}
-        {rest.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Grid — responsive 1/2/3 col with same side padding */}
+      {rest.length > 0 && (
+        <div className="px-5 sm:px-8 lg:px-12 xl:px-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {rest.map((entry, i) => {
               const aspectRatios = ["3/4", "4/5", "3/4"]
               const ar = aspectRatios[i % aspectRatios.length]
@@ -493,7 +496,7 @@ export function FriendsSelectedMemories({ entries }: { entries: Entry[] }) {
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       />
                     </div>
-                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.04) 50%, transparent 100%)" }} />
+                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.04) 50%, transparent 100%)" }} />
                     <div className="absolute bottom-4 left-4 right-4">
                       <p className="text-[9px] tracking-[0.3em] uppercase text-white/50 mb-1 font-mono-custom">
                         {String(i + 2).padStart(2, "0")}
@@ -508,8 +511,8 @@ export function FriendsSelectedMemories({ entries }: { entries: Entry[] }) {
               )
             })}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   )
 }
