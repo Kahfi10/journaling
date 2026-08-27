@@ -2,8 +2,8 @@ import { NextResponse } from "next/server"
 import { entries } from "@/data/entries"
 import { getEntryBySlug } from "@/data/entries"
 import {
-  normalizeMusicDuration,
-  normalizeMusicSource,
+  normalizeMusicPayload,
+  normalizeSectionMusicPayload,
   removeEntrySettings,
   updateEntrySettings,
 } from "@/lib/entry-settings"
@@ -33,27 +33,8 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Entry not found" }, { status: 404 })
   }
 
-  const rawMusic = body.music
-  const music =
-    rawMusic === null
-      ? null
-      : rawMusic
-      ? {
-          source: normalizeMusicSource(String(rawMusic.source ?? "UPLOAD")),
-          file_url: rawMusic.file_url ?? null,
-          file_public_id: null,
-          itunes_track_id: null,
-          preview_url: rawMusic.preview_url ?? null,
-          track_name: rawMusic.track_name ?? null,
-          artist_name: rawMusic.artist_name ?? null,
-          album_name: null,
-          album_art_url: rawMusic.album_art_url ?? null,
-          start_time: Number(rawMusic.start_time ?? 0),
-          duration: normalizeMusicDuration(String(rawMusic.duration ?? "THIRTY")),
-          created_at: new Date(),
-          entry_id: slug,
-        }
-      : undefined
+  const music = body.music === null ? null : normalizeMusicPayload(body.music, slug)
+  const sectionMusic = normalizeSectionMusicPayload(body.sectionMusic, slug)
 
   updateEntrySettings(slug, {
     title: typeof body.title === "string" ? body.title : undefined,
@@ -66,6 +47,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     cover: typeof body.cover === "string" ? body.cover : undefined,
     description: typeof body.description === "string" ? body.description : undefined,
     music,
+    sectionMusic,
   })
 
   const updated = getEntryBySlug(slug)

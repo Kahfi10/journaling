@@ -1,6 +1,8 @@
 // src/data/types.ts
 // Static data types — no database needed
 
+import type { Music as RuntimeMusic } from "@/types/entry"
+
 export type MediaType = "PHOTO" | "VIDEO"
 export type MusicSource = "ITUNES" | "UPLOAD"
 export type PageCategory = "friends" | "me" | "together"
@@ -22,6 +24,11 @@ export interface MusicItem {
   duration?: 15 | 30 | 60
 }
 
+export interface SectionMusicItem {
+  sectionKey: string
+  music?: RuntimeMusic
+}
+
 export interface Entry {
   slug: string
   title: string
@@ -32,4 +39,5 @@ export interface Entry {
   cover: string         // URL of cover image (first media)
   media: MediaItem[]
   music?: MusicItem
+  sectionMusic?: SectionMusicItem[]
 }

@@ -7,7 +7,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { SplitText } from "gsap/SplitText"
 import { useGSAP } from "@gsap/react"
 import { formatDate } from "@/lib/utils"
-import type { Location } from "@/types/entry"
+import { useSectionMusicCue } from "@/hooks/useSectionMusicCue"
+import type { Location, Music } from "@/types/entry"
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP)
 
@@ -17,13 +18,16 @@ interface EntryHeroProps {
   location: Location | null
   coverUrl?: string
   description?: string
+  music?: Music | null
 }
 
-export function EntryHero({ title, dateTaken, location, coverUrl, description }: EntryHeroProps) {
+export function EntryHero({ title, dateTaken, location, coverUrl, description, music }: EntryHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const coverRef = useRef<HTMLDivElement>(null)
+
+  useSectionMusicCue(containerRef, music)
 
   useGSAP(
     () => {

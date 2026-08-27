@@ -6,6 +6,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { SplitText } from "gsap/SplitText"
 import { useGSAP } from "@gsap/react"
 import { formatDate } from "@/lib/utils"
+import { useSectionMusicCue } from "@/hooks/useSectionMusicCue"
+import type { Music } from "@/types/entry"
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP)
 
@@ -14,12 +16,15 @@ interface EntryStoryProps {
   dateTaken: Date
   category: string
   description?: string
+  music?: Music | null
 }
 
-export function EntryStory({ location, dateTaken, category, description }: EntryStoryProps) {
+export function EntryStory({ location, dateTaken, category, description, music }: EntryStoryProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const paragraphRef = useRef<HTMLParagraphElement>(null)
   const metaRef = useRef<HTMLDivElement>(null)
+
+  useSectionMusicCue(containerRef, music)
 
   useGSAP(() => {
     const metaItems = metaRef.current?.querySelectorAll(".story-meta-item")

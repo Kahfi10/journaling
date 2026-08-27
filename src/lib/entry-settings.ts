@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import path from "node:path"
-import type { Entry, MusicSource, MusicDuration } from "@/types/entry"
+import type { Entry, MusicSource, MusicDuration, Music } from "@/types/entry"
 
 export interface EntrySettingsPatch {
   title?: string
@@ -10,6 +10,7 @@ export interface EntrySettingsPatch {
   cover?: string
   description?: string
   music?: Entry["music"] | null
+  sectionMusic?: Entry["sectionMusic"] | null
 }
 
 export interface StoredEntrySettings {
@@ -79,6 +80,7 @@ export function mergeEntrySettings(entry: Entry): Entry {
   if (settings.cover !== undefined) merged.cover = settings.cover
   if (settings.description !== undefined) merged.description = settings.description
   if (settings.music !== undefined) merged.music = settings.music ?? undefined
+  if (settings.sectionMusic !== undefined) merged.sectionMusic = settings.sectionMusic ?? undefined
 
   return merged
 }
@@ -91,4 +93,76 @@ export function normalizeMusicDuration(value: string): MusicDuration {
   if (value === "FIFTEEN") return "FIFTEEN"
   if (value === "SIXTY") return "SIXTY"
   return "THIRTY"
+}
+
+export interface MusicPayload {
+  source?: string
+  file_url?: string | null
+  preview_url?: string | null
+  track_name?: string | null
+  artist_name?: string | null
+  album_art_url?: string | null
+  start_time?: number | string | null
+  duration?: string | null
+}
+
+export interface SectionMusicPayload {
+  sectionKey?: string
+  music?: MusicPayload | null
+}
+
+export function normalizeMusicPayload(payload: MusicPayload | null | undefined, slug: string): Music | null {
+  if (!payload) return null
+
+  const source = normalizeMusicSource(String(payload.source ?? "UPLOAD"))
+  const trackName = payload.track_name ?? null
+
+  if (source === "ITUNES" && !payload.preview_url) {
+    return null
+  }
+
+  if (source === "UPLOAD" && !payload.file_url) {
+    return null
+  }
+
+  return {
+    id: `${slug}-${trackName ?? "music"}`,
+    source,
+    file_url: payload.file_url ?? null,
+    file_public_id: null,
+    itunes_track_id: null,
+    preview_url: payload.preview_url ?? null,
+    track_name: trackName,
+    artist_name: payload.artist_name ?? null,
+    album_name: null,
+    album_art_url: payload.album_art_url ?? null,
+    start_time: Number(payload.start_time ?? 0),
+    duration: normalizeMusicDuration(String(payload.duration ?? "THIRTY")),
+    created_at: new Date(),
+    entry_id: slug,
+  }
+}
+
+export function normalizeSectionMusicPayload(slots: SectionMusicPayload[] | null | undefined, slug: string): Entry["sectionMusic"] {
+  if (!slots || slots.length === 0) return undefined
+
+  const normalized = slots
+    .map((slot, index) => {
+      const sectionKey = typeof slot.sectionKey === "string" ? slot.sectionKey.trim() : ""
+      if (!sectionKey) return null
+
+      const music = normalizeMusicPayload(slot.music, slug)
+      if (!music) return null
+
+      return {
+        sectionKey,
+        music: {
+          ...music,
+          id: `${slug}-${sectionKey}-${index}`,
+        },
+      }
+    })
+    .filter((slot): slot is NonNullable<typeof slot> => Boolean(slot))
+
+  return normalized.length > 0 ? normalized : undefined
 }

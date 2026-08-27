@@ -6,19 +6,23 @@ import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
 import { EntryCaption } from "./EntryCaption"
-import type { Media } from "@/types/entry"
+import { useSectionMusicCue } from "@/hooks/useSectionMusicCue"
+import type { Media, Music } from "@/types/entry"
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
 interface PhotoSectionProps {
   media: Media
   index: number
+  music?: Music | null
 }
 
-export function PhotoSection({ media, index }: PhotoSectionProps) {
+export function PhotoSection({ media, index, music }: PhotoSectionProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const imgRef = useRef<HTMLDivElement>(null)
   const captionRef = useRef<HTMLDivElement>(null)
+
+  useSectionMusicCue(sectionRef, music)
 
   useGSAP(
     () => {

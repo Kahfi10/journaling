@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react"
 import type { Entry } from "@/data/types"
+import { SectionTracksEditor, type SectionTrackForm } from "./SectionTracksEditor"
+import { TrackSearchPicker, type ItunesTrack } from "./TrackSearchPicker"
 
 type MusicFormState = {
   enabled: boolean
@@ -23,6 +25,7 @@ type EntryFormState = {
   cover: string
   description: string
   music: MusicFormState
+  sectionMusic: SectionTrackForm[]
 }
 
 type AdminEntry = Entry
@@ -39,6 +42,68 @@ function createEmptyMusic(): MusicFormState {
     start_time: "0",
     duration: "THIRTY",
   }
+}
+
+function createDefaultSectionMusic(entry: AdminEntry): SectionTrackForm[] {
+  const mediaDefaults = (entry.media ?? []).map((_, index) => ({
+    sectionKey: `media-${index}`,
+    source: "ITUNES" as const,
+    file_url: "",
+    preview_url: "",
+    track_name: "",
+    artist_name: "",
+    album_art_url: "",
+    start_time: "0",
+    duration: "THIRTY" as const,
+  }))
+
+  return [
+    {
+      sectionKey: "hero",
+      source: "ITUNES",
+      file_url: "",
+      preview_url: "",
+      track_name: "",
+      artist_name: "",
+      album_art_url: "",
+      start_time: "0",
+      duration: "THIRTY",
+    },
+    {
+      sectionKey: "story",
+      source: "ITUNES",
+      file_url: "",
+      preview_url: "",
+      track_name: "",
+      artist_name: "",
+      album_art_url: "",
+      start_time: "0",
+      duration: "THIRTY",
+    },
+    {
+      sectionKey: "memory-intro",
+      source: "ITUNES",
+      file_url: "",
+      preview_url: "",
+      track_name: "",
+      artist_name: "",
+      album_art_url: "",
+      start_time: "0",
+      duration: "THIRTY",
+    },
+    {
+      sectionKey: "gallery",
+      source: "ITUNES",
+      file_url: "",
+      preview_url: "",
+      track_name: "",
+      artist_name: "",
+      album_art_url: "",
+      start_time: "0",
+      duration: "THIRTY",
+    },
+    ...mediaDefaults,
+  ]
 }
 
 function createFormState(entry: AdminEntry): EntryFormState {
@@ -62,6 +127,26 @@ function createFormState(entry: AdminEntry): EntryFormState {
           duration: entry.music.duration,
         }
       : createEmptyMusic(),
+    sectionMusic:
+      entry.sectionMusic
+        ?.map((slot) => {
+          if (!slot.music) {
+            return null
+          }
+
+          return {
+            sectionKey: slot.sectionKey,
+            source: slot.music.source,
+            file_url: slot.music.file_url ?? "",
+            preview_url: slot.music.preview_url ?? "",
+            track_name: slot.music.track_name ?? "",
+            artist_name: slot.music.artist_name ?? "",
+            album_art_url: slot.music.album_art_url ?? "",
+            start_time: String(slot.music.start_time ?? 0),
+            duration: slot.music.duration,
+          }
+        })
+        .filter((slot): slot is SectionTrackForm => Boolean(slot)) ?? createDefaultSectionMusic(entry),
   }
 }
 
@@ -111,6 +196,31 @@ export function EntrySettingsAdmin() {
     })
   }
 
+  const updateSectionMusic = (value: SectionTrackForm[]) => {
+    setForm((prev) => (prev ? { ...prev, sectionMusic: value } : prev))
+  }
+
+  const applyItunesTrack = (track: ItunesTrack) => {
+    setForm((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        music: {
+          ...prev.music,
+          enabled: true,
+          source: "ITUNES",
+          preview_url: track.previewUrl,
+          track_name: track.trackName,
+          artist_name: track.artistName,
+          album_art_url: track.artworkUrl,
+          file_url: "",
+          start_time: "0",
+          duration: "THIRTY",
+        },
+      }
+    })
+  }
+
   const saveEntry = async () => {
     if (!selectedSlug || !form) return
     setSaving(true)
@@ -135,6 +245,22 @@ export function EntrySettingsAdmin() {
             duration: form.music.duration,
           }
         : null,
+      sectionMusic:
+        form.sectionMusic.length > 0
+          ? form.sectionMusic.map((slot) => ({
+              sectionKey: slot.sectionKey,
+              music: {
+                source: slot.source,
+                file_url: slot.file_url.trim() || null,
+                preview_url: slot.preview_url.trim() || null,
+                track_name: slot.track_name.trim() || null,
+                artist_name: slot.artist_name.trim() || null,
+                album_art_url: slot.album_art_url.trim() || null,
+                start_time: Number(slot.start_time || 0),
+                duration: slot.duration,
+              },
+            }))
+          : null,
     }
 
     const response = await fetch(`/api/admin/entry-settings/${selectedSlug}`, {
@@ -343,6 +469,16 @@ export function EntrySettingsAdmin() {
                           <option value="ITUNES">ITUNES</option>
                         </select>
                       </div>
+                      {form.music.source === "ITUNES" ? (
+                        <div className="md:col-span-2">
+                          <TrackSearchPicker
+                            label="Pilih lagu iTunes"
+                            placeholder="Cari judul lagu atau artis"
+                            onPick={applyItunesTrack}
+                            initialQuery={form.music.track_name || form.music.artist_name}
+                          />
+                        </div>
+                      ) : null}
                       <Field
                         label={form.music.source === "ITUNES" ? "Preview URL" : "File URL"}
                         value={form.music.source === "ITUNES" ? form.music.preview_url : form.music.file_url}
@@ -368,6 +504,10 @@ export function EntrySettingsAdmin() {
                         </select>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="rounded-2xl border p-4" style={{ borderColor: "var(--j-border)" }}>
+                    <SectionTracksEditor value={form.sectionMusic} onChange={updateSectionMusic} />
                   </div>
                 </div>
               )}

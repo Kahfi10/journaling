@@ -9,6 +9,7 @@ import { VideoSection } from "@/components/entry/VideoSection"
 import { EntryFooter } from "@/components/entry/EntryFooter"
 import { MusicPlayer } from "@/components/entry/MusicPlayer"
 import { ScrollProgress } from "@/components/entry/ScrollProgress"
+import type { Music } from "@/types/entry"
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -70,6 +71,10 @@ export default async function EntryDetailPage({ params }: PageProps) {
       }
     : null
 
+  const sectionMusicMap = Object.fromEntries(
+    (entry.sectionMusic ?? []).map((slot) => [slot.sectionKey, slot.music])
+  ) as Record<string, Music>
+
   return (
     <>
       <ScrollProgress />
@@ -80,6 +85,7 @@ export default async function EntryDetailPage({ params }: PageProps) {
           location={location}
           coverUrl={entry.cover}
           description={entry.description}
+          music={sectionMusicMap.hero ?? null}
         />
 
         <EntryStory 
@@ -87,6 +93,7 @@ export default async function EntryDetailPage({ params }: PageProps) {
           dateTaken={new Date(entry.date)} 
           category={entry.category} 
           description={entry.description || "A collection of fragments and memories from this particular day, captured exactly as they happened."} 
+          music={sectionMusicMap.story ?? null}
         />
 
         <EntryMemoryIntro
@@ -103,6 +110,7 @@ export default async function EntryDetailPage({ params }: PageProps) {
             created_at: new Date(),
             entry_id: entry.slug,
           }))}
+          music={sectionMusicMap["memory-intro"] ?? null}
         />
 
         {entry.media.map((media, index) => {
@@ -117,15 +125,15 @@ export default async function EntryDetailPage({ params }: PageProps) {
             entry_id: entry.slug,
           }
           if (media.type === "VIDEO") {
-            return <VideoSection key={index} media={mediaShape} index={index} music={music} />
+            return <VideoSection key={index} media={mediaShape} index={index} music={sectionMusicMap[`media-${index}`] ?? sectionMusicMap.gallery ?? null} />
           }
-          return <PhotoSection key={index} media={mediaShape} index={index} />
+          return <PhotoSection key={index} media={mediaShape} index={index} music={sectionMusicMap[`media-${index}`] ?? sectionMusicMap.gallery ?? null} />
         })}
 
         <EntryFooter dateTaken={new Date(entry.date)} location={location} />
       </main>
 
-      {music && <MusicPlayer music={music} />}
+      <MusicPlayer music={music} />
     </>
   )
 }

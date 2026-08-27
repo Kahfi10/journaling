@@ -8,26 +8,37 @@ import { getMusicDurationSeconds } from "@/lib/utils"
 import type { Music as MusicType } from "@/types/entry"
 
 interface MusicPlayerProps {
-  music: MusicType
+  music: MusicType | null
 }
 
 export function MusicPlayer({ music }: MusicPlayerProps) {
   const waveRef = useRef<HTMLDivElement>(null)
   const soundRef = useRef<Howl | null>(null)
+  const [activeMusic, setActiveMusic] = useState<MusicType | null>(music)
   const [status, setStatus] = useState<"loading" | "ready" | "playing" | "paused" | "error">("loading")
   const [muted, setMuted] = useState(false)
   const hasStarted = useRef(false)
   const durationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const volumeRef = useRef(0.75)
+  const autoPlayRef = useRef(false)
 
-  const audioUrl = music.source === "ITUNES" ? music.preview_url : music.file_url
-  const durationSec = getMusicDurationSeconds(music.duration)
+  const audioUrl = activeMusic ? (activeMusic.source === "ITUNES" ? activeMusic.preview_url : activeMusic.file_url) : null
+  const durationSec = activeMusic ? getMusicDurationSeconds(activeMusic.duration) : 0
+
+  const stopCurrentSound = useCallback(() => {
+    if (durationTimerRef.current) clearTimeout(durationTimerRef.current)
+    if (soundRef.current) {
+      soundRef.current.stop()
+      soundRef.current.unload()
+      soundRef.current = null
+    }
+  }, [])
 
   const doPlay = useCallback(() => {
     const sound = soundRef.current
-    if (!sound) return
+    if (!sound || !activeMusic) return
     if (sound.state() === "unloaded") sound.load()
-    sound.seek(music.start_time ?? 0)
+    sound.seek(activeMusic.start_time ?? 0)
     sound.volume(volumeRef.current)
     sound.play()
     hasStarted.current = true
@@ -38,10 +49,29 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
         setTimeout(() => soundRef.current?.stop(), 550)
       }
     }, durationSec * 1000)
-  }, [music.start_time, durationSec])
+  }, [activeMusic, durationSec])
+
+  const switchTrack = useCallback((nextMusic: MusicType) => {
+    autoPlayRef.current = true
+    hasStarted.current = false
+    setStatus("loading")
+    stopCurrentSound()
+    setMuted(false)
+    setActiveMusic(nextMusic)
+  }, [stopCurrentSound])
 
   useEffect(() => {
-    if (!audioUrl) { setStatus("error"); return }
+    if (!activeMusic || !audioUrl) {
+      setStatus("paused")
+      ;(window as unknown as Record<string, unknown>).__musicPlayer = {
+        fadeOut: () => undefined,
+        fadeIn: () => undefined,
+        playTrack: switchTrack,
+      }
+      return () => {
+        delete (window as unknown as Record<string, unknown>).__musicPlayer
+      }
+    }
     Howler.autoUnlock = true
     const sound = new Howl({
       src: [audioUrl],
@@ -63,13 +93,20 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
     ;(window as unknown as Record<string, unknown>).__musicPlayer = {
       fadeOut: (ms: number) => { if (sound.playing()) sound.fade(sound.volume(), 0, ms) },
       fadeIn: (ms: number) => { if (!sound.playing()) sound.play(); sound.fade(sound.volume(), volumeRef.current, ms) },
+      playTrack: switchTrack,
+    }
+    if (autoPlayRef.current) {
+      autoPlayRef.current = false
+      const startWhenReady = () => doPlay()
+      sound.once("load", startWhenReady)
     }
     return () => {
       if (durationTimerRef.current) clearTimeout(durationTimerRef.current)
-      sound.stop(); sound.unload()
+      sound.stop()
+      sound.unload()
       delete (window as unknown as Record<string, unknown>).__musicPlayer
     }
-  }, [audioUrl])
+  }, [activeMusic, audioUrl, doPlay, switchTrack])
 
   // Autoplay on first scroll
   useEffect(() => {
@@ -157,13 +194,13 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
         {/* Track Info */}
         <div className="flex flex-col flex-shrink-0 min-w-0 w-44">
           <span className="text-sm font-medium truncate leading-tight" style={{ color: "var(--j-text-1)" }}>
-            {music.track_name ?? "Audio"}
+          {activeMusic?.track_name ?? "Audio"}
           </span>
           <span className="text-[10px] tracking-wider truncate mt-0.5" style={{ color: "var(--j-text-3)" }}>
             {status === "loading" && "Memuat..."}
             {status === "ready" && "Scroll untuk mulai"}
-            {status === "playing" && (music.artist_name ?? "")}
-            {status === "paused" && (music.artist_name ?? "")}
+          {status === "playing" && (activeMusic?.artist_name ?? "")}
+          {status === "paused" && (activeMusic?.artist_name ?? "")}
             {status === "error" && "Tidak tersedia"}
           </span>
         </div>

@@ -5,7 +5,7 @@ import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
 import { EntryCaption } from "./EntryCaption"
-import { useMusicPlayer } from "@/hooks/useMusicPlayer"
+import { useSectionMusicCue } from "@/hooks/useSectionMusicCue"
 import type { Media, Music } from "@/types/entry"
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
@@ -13,14 +13,15 @@ gsap.registerPlugin(ScrollTrigger, useGSAP)
 interface VideoSectionProps {
   media: Media
   index: number
-  music: Music | null
+  music?: Music | null
 }
 
 export function VideoSection({ media, index, music }: VideoSectionProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const captionRef = useRef<HTMLDivElement>(null)
-  const { fadeOut, fadeIn } = useMusicPlayer()
+
+  useSectionMusicCue(sectionRef, music)
 
   useGSAP(
     () => {
@@ -58,38 +59,21 @@ export function VideoSection({ media, index, music }: VideoSectionProps) {
         end: "bottom 40%",
 
         onEnter: () => {
-          // Fade out music, play video
-          if (music) {
-            fadeOut(300)
-            setTimeout(() => videoRef.current?.play(), 350)
-          } else {
-            videoRef.current?.play()
-          }
-          // Show caption
-          if (captionRef.current && media.caption) {
-            gsap.to(captionRef.current, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" })
-          }
+          videoRef.current?.play()
         },
 
         onLeave: () => {
           videoRef.current?.pause()
           if (videoRef.current) videoRef.current.currentTime = 0
-          if (music) fadeIn(500)
         },
 
         onEnterBack: () => {
-          if (music) {
-            fadeOut(300)
-            setTimeout(() => videoRef.current?.play(), 350)
-          } else {
-            videoRef.current?.play()
-          }
+          videoRef.current?.play()
         },
 
         onLeaveBack: () => {
           videoRef.current?.pause()
           if (videoRef.current) videoRef.current.currentTime = 0
-          if (music) fadeIn(500)
         },
       })
     },

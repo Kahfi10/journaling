@@ -6,7 +6,8 @@ import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
 import { formatDate } from "@/lib/utils"
-import type { Media, Location } from "@/types/entry"
+import { useSectionMusicCue } from "@/hooks/useSectionMusicCue"
+import type { Media, Location, Music } from "@/types/entry"
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
@@ -15,12 +16,15 @@ interface EntryMemoryIntroProps {
   dateTaken: Date
   location: Location | null
   media: Media[]
+  music?: Music | null
 }
 
-export function EntryMemoryIntro({ title, dateTaken, location, media }: EntryMemoryIntroProps) {
+export function EntryMemoryIntro({ title, dateTaken, location, media, music }: EntryMemoryIntroProps) {
   const sectionRef = useRef<HTMLElement>(null)
 
   const previewMedia = media.slice(0, 4)
+
+  useSectionMusicCue(sectionRef, music)
 
   useGSAP(() => {
     gsap.from(".memory-intro-item", {
