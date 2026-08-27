@@ -105,7 +105,7 @@ export function TrackSearchPicker({
       {error ? <p className="text-xs" style={{ color: "var(--j-text-3)" }}>{error}</p> : null}
 
       {hasResults ? (
-        <div className="grid gap-2">
+        <div className="mt-2 grid gap-1.5 max-h-64 overflow-y-auto rounded-xl pr-1" style={{ scrollbarWidth: "thin" }}>
           {results.map((track) => (
             <button
               key={track.trackId}

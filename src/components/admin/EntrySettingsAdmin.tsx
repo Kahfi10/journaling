@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import type { Entry } from "@/types/entry"
+import type { Entry } from "@/data/types"
 import { TrackSearchPicker, type ItunesTrack } from "./TrackSearchPicker"
 import type { PageMusicScope } from "@/lib/page-settings"
 
@@ -307,221 +307,309 @@ export function EntrySettingsAdmin() {
   }
 
   return (
-    <div className="min-h-screen px-5 py-8 sm:px-8 lg:px-12" style={{ background: "var(--j-bg)" }}>
-      <div className="mx-auto max-w-[1600px]">
-        <div className="mb-8">
-          <p className="mb-2 font-mono-custom text-[10px] uppercase tracking-[0.34em]" style={{ color: "var(--j-text-3)" }}>
-            Admin / Settings
-          </p>
-          <h1
-            className="font-light"
-            style={{ fontFamily: "var(--font-apple)", fontSize: "clamp(2rem, 4vw, 3.5rem)", color: "var(--j-text-1)" }}
-          >
-            Mengatur Home, Friends, dan Entry Detail
-          </h1>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed" style={{ color: "var(--j-text-3)" }}>
-            Setiap page punya background music sendiri. Entry detail tetap bisa diubah per item.
-          </p>
+    <div className="min-h-screen" style={{ background: "var(--j-bg)" }}>
+      {/* Top bar */}
+      <header
+        className="sticky top-0 z-10 flex items-center justify-between border-b px-6 py-4"
+        style={{ borderColor: "var(--j-border)", background: "var(--j-bg)" }}
+      >
+        <div className="flex items-center gap-3">
+          <span className="font-mono-custom text-[10px] uppercase tracking-[0.32em]" style={{ color: "var(--j-text-3)" }}>
+            Journal
+          </span>
+          <span style={{ color: "var(--j-border)" }}>/</span>
+          <span className="font-mono-custom text-[10px] uppercase tracking-[0.32em]" style={{ color: "var(--j-text-1)" }}>
+            Admin
+          </span>
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-3">
+        {/* Tab nav */}
+        <nav className="flex items-center gap-1">
           {PAGE_TAB_ITEMS.map((item) => (
             <button
               key={item.key}
               type="button"
               onClick={() => setActiveTab(item.key)}
-              className="rounded-full border px-4 py-2 text-left transition-colors"
+              className="rounded-lg px-3 py-1.5 text-xs tracking-[0.18em] uppercase transition-colors"
               style={{
-                borderColor: activeTab === item.key ? "var(--j-text-1)" : "var(--j-border)",
-                background: activeTab === item.key ? "rgba(0,0,0,0.05)" : "transparent",
-                color: "var(--j-text-1)",
+                background: activeTab === item.key ? "var(--j-text-1)" : "transparent",
+                color: activeTab === item.key ? "var(--j-bg)" : "var(--j-text-3)",
               }}
             >
-              <div className="text-xs tracking-[0.22em] uppercase">{item.label}</div>
-              <div className="mt-1 text-[10px] tracking-[0.18em] uppercase" style={{ color: "var(--j-text-3)" }}>
-                {item.description}
-              </div>
+              {item.label}
             </button>
           ))}
-        </div>
+        </nav>
 
-        {loading ? (
-          <div className="py-16 text-sm font-mono-custom uppercase tracking-[0.26em]" style={{ color: "var(--j-text-3)" }}>
-            Loading...
-          </div>
+        {message ? (
+          <span className="font-mono-custom text-[10px] uppercase tracking-[0.22em]" style={{ color: "var(--j-text-3)" }}>
+            {message}
+          </span>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-            <aside className="rounded-2xl border p-4" style={{ borderColor: "var(--j-border)", background: "var(--j-surface)" }}>
-              <p className="mb-4 text-xs tracking-[0.3em] uppercase font-mono-custom" style={{ color: "var(--j-text-3)" }}>
-                Page summary
-              </p>
-              <div className="space-y-3 text-sm" style={{ color: "var(--j-text-2)" }}>
-                <SummaryItem label="Home music" value={pageForms.home.enabled ? pageForms.home.track_name || "Selected" : "Fallback default"} />
-                <SummaryItem
-                  label="Friends music"
-                  value={pageForms.friends.enabled ? pageForms.friends.track_name || "Selected" : "Fallback default"}
-                />
-                <SummaryItem label="Entries" value={`${entries.length} detail page(s)`} />
-              </div>
-            </aside>
+          <span className="font-mono-custom text-[10px] uppercase tracking-[0.22em]" style={{ color: "var(--j-text-4)" }}>
+            {entries.length} entries
+          </span>
+        )}
+      </header>
 
-            <section className="rounded-2xl border p-5 sm:p-6 lg:p-8" style={{ borderColor: "var(--j-border)", background: "var(--j-surface)" }}>
-              {activeTab === "entries" ? (
-                <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-                  <aside className="rounded-2xl border p-4" style={{ borderColor: "var(--j-border)", background: "var(--j-bg)" }}>
-                    <p className="mb-4 text-xs tracking-[0.3em] uppercase font-mono-custom" style={{ color: "var(--j-text-3)" }}>
-                      Entries
-                    </p>
-                    <div className="space-y-2">
-                      {entries.map((entry) => (
-                        <button
-                          key={entry.slug}
-                          onClick={() => {
-                            setSelectedSlug(entry.slug)
-                            setEntryForm(createFormState(entry))
-                          }}
-                          className="w-full rounded-xl border px-4 py-3 text-left transition-colors"
-                          style={{
-                            borderColor: selectedSlug === entry.slug ? "var(--j-text-1)" : "var(--j-border)",
-                            background: selectedSlug === entry.slug ? "rgba(0,0,0,0.04)" : "transparent",
-                          }}
-                        >
-                          <div className="flex items-center justify-between gap-4">
-                            <div>
-                              <p className="font-light" style={{ fontFamily: "var(--font-apple)", color: "var(--j-text-1)" }}>
-                                {entry.title}
-                              </p>
-                              <p className="mt-1 text-[10px] uppercase tracking-[0.26em]" style={{ color: "var(--j-text-3)" }}>
-                                {entry.category}
-                              </p>
-                            </div>
-                            <span className="text-[10px] tracking-[0.22em] uppercase" style={{ color: "var(--j-text-4)" }}>
-                              {entry.music ? "Music" : "No music"}
-                            </span>
-                          </div>
-                        </button>
-                      ))}
+      {loading ? (
+        <div className="flex items-center justify-center py-32 font-mono-custom text-xs uppercase tracking-[0.26em]" style={{ color: "var(--j-text-3)" }}>
+          Loading…
+        </div>
+      ) : (
+        <div className="mx-auto max-w-5xl px-6 py-8">
+          {activeTab === "entries" ? (
+            /* ── Entry Detail tab ── */
+            <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+              {/* Entry list */}
+              <aside className="space-y-1">
+                <p className="mb-3 font-mono-custom text-[10px] uppercase tracking-[0.3em]" style={{ color: "var(--j-text-3)" }}>
+                  Entries
+                </p>
+                {entries.map((entry) => (
+                  <button
+                    key={entry.slug}
+                    type="button"
+                    onClick={() => {
+                      setSelectedSlug(entry.slug)
+                      setEntryForm(createFormState(entry))
+                    }}
+                    className="w-full rounded-xl px-4 py-3 text-left transition-colors"
+                    style={{
+                      background: selectedSlug === entry.slug ? "var(--j-surface)" : "transparent",
+                      border: `1px solid ${selectedSlug === entry.slug ? "var(--j-text-1)" : "transparent"}`,
+                    }}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate text-sm font-light" style={{ fontFamily: "var(--font-apple)", color: "var(--j-text-1)" }}>
+                        {entry.title}
+                      </span>
+                      <span
+                        className="shrink-0 rounded-full px-2 py-0.5 font-mono-custom text-[9px] uppercase tracking-[0.2em]"
+                        style={{
+                          background: entry.music ? "rgba(0,0,0,0.06)" : "transparent",
+                          color: entry.music ? "var(--j-text-2)" : "var(--j-text-4)",
+                        }}
+                      >
+                        {entry.music ? "♪" : "—"}
+                      </span>
                     </div>
-                  </aside>
+                    <span className="mt-0.5 text-[10px] uppercase tracking-[0.22em]" style={{ color: "var(--j-text-4)" }}>
+                      {entry.category}
+                    </span>
+                  </button>
+                ))}
+              </aside>
 
-                  <section className="rounded-2xl border p-5" style={{ borderColor: "var(--j-border)", background: "var(--j-surface)" }}>
-                    {!selectedEntry || !entryForm ? (
-                      <p className="text-sm" style={{ color: "var(--j-text-3)" }}>
-                        Pilih entry dulu.
-                      </p>
-                    ) : (
-                      <div className="space-y-8">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                          <div>
-                            <p className="text-[10px] tracking-[0.28em] uppercase font-mono-custom" style={{ color: "var(--j-text-3)" }}>
-                              Editing
-                            </p>
-                            <h2 className="text-2xl font-light" style={{ fontFamily: "var(--font-apple)", color: "var(--j-text-1)" }}>
-                              {selectedEntry.title}
-                            </h2>
-                          </div>
-                          <div className="flex gap-3">
-                            <button
-                              type="button"
-                              onClick={resetEntry}
-                              className="rounded-full border px-4 py-2 text-xs tracking-[0.22em] uppercase"
-                              style={{ borderColor: "var(--j-border)", color: "var(--j-text-2)" }}
-                            >
-                              Reset
-                            </button>
-                            <button
-                              type="button"
-                              onClick={saveEntry}
-                              disabled={saving === "entry"}
-                              className="rounded-full border px-4 py-2 text-xs tracking-[0.22em] uppercase"
-                              style={{
-                                borderColor: "var(--j-text-1)",
-                                color: "var(--j-bg)",
-                                background: "var(--j-text-1)",
-                              }}
-                            >
-                              {saving === "entry" ? "Saving..." : "Save"}
-                            </button>
-                          </div>
-                        </div>
-
-                        {message ? (
-                          <p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--j-text-3)" }}>
-                            {message}
-                          </p>
-                        ) : null}
-
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <Field label="Title" value={entryForm.title} onChange={(value) => updateEntryField("title", value)} />
-                          <Field label="Date" value={entryForm.date} onChange={(value) => updateEntryField("date", value)} />
-                          <Field label="Location" value={entryForm.location} onChange={(value) => updateEntryField("location", value)} />
-                          <Field label="Cover" value={entryForm.cover} onChange={(value) => updateEntryField("cover", value)} />
-                          <div className="md:col-span-2">
-                            <Label>Category</Label>
-                            <select
-                              value={entryForm.category}
-                              onChange={(event) => updateEntryField("category", event.target.value)}
-                              className="mt-2 w-full rounded-xl border px-4 py-3 text-sm outline-none"
-                              style={{ borderColor: "var(--j-border)", background: "var(--j-bg)", color: "var(--j-text-1)" }}
-                            >
-                              <option value="friends">friends</option>
-                              <option value="me">me</option>
-                              <option value="together">together</option>
-                            </select>
-                          </div>
-                          <div className="md:col-span-2">
-                            <Label>Description</Label>
-                            <textarea
-                              value={entryForm.description}
-                              onChange={(event) => updateEntryField("description", event.target.value)}
-                              rows={5}
-                              className="mt-2 w-full rounded-xl border px-4 py-3 text-sm outline-none"
-                              style={{ borderColor: "var(--j-border)", background: "var(--j-bg)", color: "var(--j-text-1)" }}
-                            />
-                          </div>
-                        </div>
-
-                        <MusicEditorCard
-                          title="Background music"
-                          description="Pilih satu lagu untuk detail entry ini."
-                          form={entryForm.music}
-                          onChange={updateEntryMusicField}
-                          onPick={applyItunesTrackToEntry}
-                          onSave={saveEntry}
-                          onReset={resetEntry}
-                          saving={saving === "entry"}
-                          showActions={false}
-                        />
-                      </div>
-                    )}
-                  </section>
+              {/* Entry editor */}
+              {!selectedEntry || !entryForm ? (
+                <div className="flex items-center justify-center rounded-2xl border py-16" style={{ borderColor: "var(--j-border)" }}>
+                  <p className="text-sm" style={{ color: "var(--j-text-3)" }}>Pilih entry.</p>
                 </div>
               ) : (
-                <MusicPageEditor
-                  scope={activeTab as PageMusicScope}
-                  title={activeTab === "home" ? "Home" : "Friends"}
-                  description={
-                    activeTab === "home"
-                      ? "Background music untuk halaman utama."
-                      : "Background music untuk halaman friends."
-                  }
-                  form={pageForms[activeTab as PageMusicScope]}
-                  onChange={updatePageMusicField}
-                  onPick={applyItunesTrackToPage}
-                  onSave={savePageMusic}
-                  onReset={resetPageMusic}
-                  saving={saving === activeTab}
-                />
+                <div className="space-y-6">
+                  {/* Header bar */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-mono-custom text-[10px] uppercase tracking-[0.28em]" style={{ color: "var(--j-text-3)" }}>
+                        Editing
+                      </p>
+                      <h2 className="mt-0.5 text-xl font-light" style={{ fontFamily: "var(--font-apple)", color: "var(--j-text-1)" }}>
+                        {selectedEntry.title}
+                      </h2>
+                    </div>
+                    <ActionButtons
+                      onReset={resetEntry}
+                      onSave={saveEntry}
+                      saving={saving === "entry"}
+                    />
+                  </div>
+
+                  {/* Metadata fields */}
+                  <div className="rounded-2xl border p-5" style={{ borderColor: "var(--j-border)", background: "var(--j-surface)" }}>
+                    <p className="mb-4 font-mono-custom text-[10px] uppercase tracking-[0.3em]" style={{ color: "var(--j-text-3)" }}>
+                      Metadata
+                    </p>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <Field label="Title" value={entryForm.title} onChange={(value) => updateEntryField("title", value)} />
+                      <Field label="Date" value={entryForm.date} onChange={(value) => updateEntryField("date", value)} />
+                      <Field label="Location" value={entryForm.location} onChange={(value) => updateEntryField("location", value)} />
+                      <Field label="Cover URL" value={entryForm.cover} onChange={(value) => updateEntryField("cover", value)} />
+                      <div className="md:col-span-2">
+                        <Label>Category</Label>
+                        <select
+                          value={entryForm.category}
+                          onChange={(event) => updateEntryField("category", event.target.value)}
+                          className="mt-2 w-full rounded-xl border px-4 py-3 text-sm outline-none"
+                          style={{ borderColor: "var(--j-border)", background: "var(--j-bg)", color: "var(--j-text-1)" }}
+                        >
+                          <option value="friends">friends</option>
+                          <option value="me">me</option>
+                          <option value="together">together</option>
+                        </select>
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label>Description</Label>
+                        <textarea
+                          value={entryForm.description}
+                          onChange={(event) => updateEntryField("description", event.target.value)}
+                          rows={4}
+                          className="mt-2 w-full rounded-xl border px-4 py-3 text-sm outline-none resize-none"
+                          style={{ borderColor: "var(--j-border)", background: "var(--j-bg)", color: "var(--j-text-1)" }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Music picker */}
+                  <MusicPickerCard
+                    form={entryForm.music}
+                    onChange={updateEntryMusicField}
+                    onPick={applyItunesTrackToEntry}
+                  />
+                </div>
               )}
-            </section>
-          </div>
-        )}
-      </div>
+            </div>
+          ) : (
+            /* ── Home / Friends tab ── */
+            <PageMusicPanel
+              scope={activeTab as PageMusicScope}
+              title={activeTab === "home" ? "Home" : "Friends"}
+              description={
+                activeTab === "home"
+                  ? "Background music yang autoplay saat halaman Home dibuka."
+                  : "Background music yang autoplay saat halaman Friends dibuka."
+              }
+              form={pageForms[activeTab as PageMusicScope]}
+              onChange={updatePageMusicField}
+              onPick={applyItunesTrackToPage}
+              onSave={savePageMusic}
+              onReset={resetPageMusic}
+              saving={saving === activeTab}
+            />
+          )}
+        </div>
+      )}
     </div>
   )
 }
 
-function MusicPageEditor({
+function ActionButtons({
+  onReset,
+  onSave,
+  saving,
+}: {
+  onReset: () => void
+  onSave: () => void
+  saving: boolean
+}) {
+  return (
+    <div className="flex gap-2">
+      <button
+        type="button"
+        onClick={onReset}
+        className="rounded-lg border px-4 py-2 text-xs tracking-[0.2em] uppercase transition-colors hover:bg-black/[0.03]"
+        style={{ borderColor: "var(--j-border)", color: "var(--j-text-2)" }}
+      >
+        Reset
+      </button>
+      <button
+        type="button"
+        onClick={onSave}
+        disabled={saving}
+        className="rounded-lg px-4 py-2 text-xs tracking-[0.2em] uppercase transition-opacity disabled:opacity-50"
+        style={{ background: "var(--j-text-1)", color: "var(--j-bg)" }}
+      >
+        {saving ? "Saving…" : "Save"}
+      </button>
+    </div>
+  )
+}
+
+function Toggle({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean
+  onChange: (value: boolean) => void
+  label: string
+}) {
+  return (
+    <label className="flex cursor-pointer items-center gap-2.5">
+      <span
+        className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors"
+        style={{ background: checked ? "var(--j-text-1)" : "var(--j-border)" }}
+        onClick={() => onChange(!checked)}
+      >
+        <span
+          className="pointer-events-none inline-block h-3.5 w-3.5 translate-x-0.5 rounded-full bg-white shadow transition-transform"
+          style={{ transform: checked ? "translateX(18px)" : "translateX(2px)" }}
+        />
+      </span>
+      <span className="font-mono-custom text-[10px] uppercase tracking-[0.22em]" style={{ color: "var(--j-text-2)" }}>
+        {label}
+      </span>
+    </label>
+  )
+}
+
+function MusicPickerCard({
+  form,
+  onChange,
+  onPick,
+}: {
+  form: MusicFormState
+  onChange: (key: keyof MusicFormState, value: string | boolean) => void
+  onPick: (track: ItunesTrack) => void
+}) {
+  return (
+    <div className="rounded-2xl border p-5" style={{ borderColor: "var(--j-border)", background: "var(--j-surface)" }}>
+      <div className="mb-5 flex items-center justify-between">
+        <p className="font-mono-custom text-[10px] uppercase tracking-[0.3em]" style={{ color: "var(--j-text-3)" }}>
+          Background Music
+        </p>
+        <Toggle checked={form.enabled} onChange={(val) => onChange("enabled", val)} label={form.enabled ? "On" : "Off"} />
+      </div>
+
+      {/* Selected track */}
+      {form.track_name ? (
+        <div
+          className="mb-5 flex items-center gap-3 rounded-xl border px-4 py-3"
+          style={{ borderColor: "var(--j-border)", background: "var(--j-bg)" }}
+        >
+          {form.album_art_url ? (
+            <img src={form.album_art_url} alt={form.track_name} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
+          ) : (
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" style={{ background: "var(--j-border)" }}>
+              <span className="text-lg">♪</span>
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-light" style={{ fontFamily: "var(--font-apple)", color: "var(--j-text-1)" }}>
+              {form.track_name}
+            </p>
+            <p className="truncate text-xs" style={{ color: "var(--j-text-3)" }}>
+              {form.artist_name}
+            </p>
+          </div>
+          <span className="font-mono-custom text-[9px] uppercase tracking-[0.22em]" style={{ color: "var(--j-text-4)" }}>
+            Selected
+          </span>
+        </div>
+      ) : null}
+
+      <TrackSearchPicker
+        label="Cari di iTunes"
+        placeholder="Nama lagu atau artis…"
+        onPick={onPick}
+        initialQuery={form.track_name || form.artist_name}
+      />
+    </div>
+  )
+}
+
+function PageMusicPanel({
   scope,
   title,
   description,
@@ -543,210 +631,28 @@ function MusicPageEditor({
   saving: boolean
 }) {
   return (
-    <div className="max-w-3xl space-y-8">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <div className="max-w-xl space-y-6">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[10px] tracking-[0.28em] uppercase font-mono-custom" style={{ color: "var(--j-text-3)" }}>
-            Editing
-          </p>
-          <h2 className="text-2xl font-light" style={{ fontFamily: "var(--font-apple)", color: "var(--j-text-1)" }}>
+          <h2 className="text-lg font-light" style={{ fontFamily: "var(--font-apple)", color: "var(--j-text-1)" }}>
             {title}
           </h2>
           <p className="mt-1 text-sm" style={{ color: "var(--j-text-3)" }}>
             {description}
           </p>
         </div>
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => onReset(scope)}
-            className="rounded-full border px-4 py-2 text-xs tracking-[0.22em] uppercase"
-            style={{ borderColor: "var(--j-border)", color: "var(--j-text-2)" }}
-          >
-            Reset
-          </button>
-          <button
-            type="button"
-            onClick={() => onSave(scope)}
-            disabled={saving}
-            className="rounded-full border px-4 py-2 text-xs tracking-[0.22em] uppercase"
-            style={{
-              borderColor: "var(--j-text-1)",
-              color: "var(--j-bg)",
-              background: "var(--j-text-1)",
-            }}
-          >
-            {saving ? "Saving..." : "Save"}
-          </button>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border p-4" style={{ borderColor: "var(--j-border)" }}>
-        <div className="mb-4 flex items-center justify-between gap-4">
-          <div>
-            <p className="text-[10px] tracking-[0.3em] uppercase font-mono-custom" style={{ color: "var(--j-text-3)" }}>
-              Background Music
-            </p>
-            <p className="text-sm" style={{ color: "var(--j-text-3)" }}>
-              Pilih lagu iTunes, lalu simpan untuk page ini.
-            </p>
-          </div>
-          <label className="flex items-center gap-2 text-xs uppercase tracking-[0.22em]" style={{ color: "var(--j-text-2)" }}>
-            <input
-              type="checkbox"
-              checked={form.enabled}
-              onChange={(event) => onChange(scope, "enabled", event.target.checked)}
-            />
-            Enabled
-          </label>
-        </div>
-
-        <TrackSearchPicker
-          label={`Pilih lagu untuk ${title}`}
-          placeholder="Cari judul lagu atau artis"
-          onPick={(track) => onPick(scope, track)}
-          initialQuery={form.track_name || form.artist_name}
+        <ActionButtons
+          onReset={() => onReset(scope)}
+          onSave={() => onSave(scope)}
+          saving={saving}
         />
-
-        {form.track_name ? (
-          <div className="mt-4 flex items-center gap-3 rounded-xl border p-3" style={{ borderColor: "var(--j-border)", background: "rgba(0,0,0,0.02)" }}>
-            {form.album_art_url ? (
-              <img src={form.album_art_url} alt={form.track_name} className="h-12 w-12 rounded-lg object-cover flex-shrink-0" />
-            ) : null}
-            <div className="min-w-0">
-              <p className="truncate font-light" style={{ color: "var(--j-text-1)", fontFamily: "var(--font-apple)" }}>
-                {form.track_name}
-              </p>
-              <p className="truncate text-xs" style={{ color: "var(--j-text-3)" }}>
-                {form.artist_name}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <p className="mt-4 text-xs" style={{ color: "var(--j-text-3)" }}>
-            Belum ada lagu dipilih.
-          </p>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function MusicEditorCard({
-  title,
-  description,
-  form,
-  onChange,
-  onPick,
-  onSave,
-  onReset,
-  saving,
-  showActions = true,
-}: {
-  title: string
-  description: string
-  form: MusicFormState
-  onChange: (key: keyof MusicFormState, value: string | boolean) => void
-  onPick: (track: ItunesTrack) => void
-  onSave: () => Promise<void>
-  onReset: () => Promise<void>
-  saving: boolean
-  showActions?: boolean
-}) {
-  return (
-    <div className="rounded-2xl border p-4" style={{ borderColor: "var(--j-border)" }}>
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-[10px] tracking-[0.3em] uppercase font-mono-custom" style={{ color: "var(--j-text-3)" }}>
-            {title}
-          </p>
-          <p className="text-sm" style={{ color: "var(--j-text-3)" }}>
-            {description}
-          </p>
-        </div>
-        {showActions ? (
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => onReset()}
-              className="rounded-full border px-4 py-2 text-xs tracking-[0.22em] uppercase"
-              style={{ borderColor: "var(--j-border)", color: "var(--j-text-2)" }}
-            >
-              Reset
-            </button>
-            <button
-              type="button"
-              onClick={() => onSave()}
-              disabled={saving}
-              className="rounded-full border px-4 py-2 text-xs tracking-[0.22em] uppercase"
-              style={{
-                borderColor: "var(--j-text-1)",
-                color: "var(--j-bg)",
-                background: "var(--j-text-1)",
-              }}
-            >
-              {saving ? "Saving..." : "Save"}
-            </button>
-          </div>
-        ) : null}
       </div>
 
-      <div className="rounded-2xl border p-4" style={{ borderColor: "var(--j-border)" }}>
-        <div className="mb-4 flex items-center justify-between gap-4">
-          <div>
-            <p className="text-[10px] tracking-[0.3em] uppercase font-mono-custom" style={{ color: "var(--j-text-3)" }}>
-              Background Music
-            </p>
-            <p className="text-sm" style={{ color: "var(--j-text-3)" }}>
-              Pilih lagu iTunes, lalu simpan.
-            </p>
-          </div>
-          <label className="flex items-center gap-2 text-xs uppercase tracking-[0.22em]" style={{ color: "var(--j-text-2)" }}>
-            <input type="checkbox" checked={form.enabled} onChange={(event) => onChange("enabled", event.target.checked)} />
-            Enabled
-          </label>
-        </div>
-
-        <TrackSearchPicker
-          label={title}
-          placeholder="Cari judul lagu atau artis"
-          onPick={onPick}
-          initialQuery={form.track_name || form.artist_name}
-        />
-
-        {form.track_name ? (
-          <div className="mt-4 flex items-center gap-3 rounded-xl border p-3" style={{ borderColor: "var(--j-border)", background: "rgba(0,0,0,0.02)" }}>
-            {form.album_art_url ? (
-              <img src={form.album_art_url} alt={form.track_name} className="h-12 w-12 rounded-lg object-cover flex-shrink-0" />
-            ) : null}
-            <div className="min-w-0">
-              <p className="truncate font-light" style={{ color: "var(--j-text-1)", fontFamily: "var(--font-apple)" }}>
-                {form.track_name}
-              </p>
-              <p className="truncate text-xs" style={{ color: "var(--j-text-3)" }}>
-                {form.artist_name}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <p className="mt-4 text-xs" style={{ color: "var(--j-text-3)" }}>
-            Belum ada lagu dipilih.
-          </p>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function SummaryItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border px-4 py-3" style={{ borderColor: "var(--j-border)" }}>
-      <div className="text-[10px] tracking-[0.22em] uppercase" style={{ color: "var(--j-text-4)" }}>
-        {label}
-      </div>
-      <div className="mt-1 text-sm" style={{ color: "var(--j-text-1)" }}>
-        {value}
-      </div>
+      <MusicPickerCard
+        form={form}
+        onChange={(key, value) => onChange(scope, key, value)}
+        onPick={(track) => onPick(scope, track)}
+      />
     </div>
   )
 }
