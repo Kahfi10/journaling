@@ -79,17 +79,21 @@ export function MusicPlayer({ music, autoplay = true, loop = true }: MusicPlayer
           audio.currentTime = music.start_time ?? 0
         }
 
-        audio.volume = mutedRef.current ? 0 : 0
+        audio.muted = autoplay && !interactionRef.current && !mutedRef.current
+        audio.volume = mutedRef.current ? 0 : targetVolumeRef.current
         const playResult = audio.play()
+        setPlaying(true)
+        setStatus("playing")
         if (playResult) {
           await playResult
         }
 
-        setPlaying(true)
-        setStatus("playing")
-
-        if (!mutedRef.current) {
-          fadeVolume(targetVolumeRef.current, FADE_IN_MS)
+        if (audio.muted) {
+          audio.muted = false
+          audio.volume = 0
+          if (!mutedRef.current) {
+            fadeVolume(targetVolumeRef.current, FADE_IN_MS)
+          }
         }
 
         return true
@@ -116,6 +120,11 @@ export function MusicPlayer({ music, autoplay = true, loop = true }: MusicPlayer
     setPlaying(false)
 
     const handlePlay = () => {
+      setPlaying(true)
+      setStatus("playing")
+    }
+
+    const handlePlaying = () => {
       setPlaying(true)
       setStatus("playing")
     }
@@ -152,16 +161,22 @@ export function MusicPlayer({ music, autoplay = true, loop = true }: MusicPlayer
         audioRef.current = audio
         audio.preload = "auto"
         audio.loop = loop
+        audio.muted = autoplay && !interactionRef.current && !mutedRef.current
         audio.volume = mutedRef.current ? 0 : targetVolumeRef.current
         audio.addEventListener("play", handlePlay)
+        audio.addEventListener("playing", handlePlaying)
         audio.addEventListener("pause", handlePause)
         audio.addEventListener("ended", handleEnded)
         audio.addEventListener("error", handleError)
         audio.load()
 
-        setStatus("ready")
         if (autoplay) {
-          startPlayback(true).catch(() => undefined)
+          const started = await startPlayback(true)
+          if (!started) {
+            setStatus("ready")
+          }
+        } else {
+          setStatus("ready")
         }
       } catch {
         if (!controller.signal.aborted) {
@@ -190,6 +205,7 @@ export function MusicPlayer({ music, autoplay = true, loop = true }: MusicPlayer
       if (audio) {
         audio.pause()
         audio.removeEventListener("play", handlePlay)
+        audio.removeEventListener("playing", handlePlaying)
         audio.removeEventListener("pause", handlePause)
         audio.removeEventListener("ended", handleEnded)
         audio.removeEventListener("error", handleError)
@@ -231,11 +247,11 @@ export function MusicPlayer({ music, autoplay = true, loop = true }: MusicPlayer
     if (!audio) return
 
     if (muted) {
-      audio.volume = 0
-      if (playing) {
-        fadeVolume(targetVolumeRef.current, 220)
-      }
+      audio.muted = false
+      audio.volume = targetVolumeRef.current
+      if (playing) fadeVolume(targetVolumeRef.current, 220)
     } else {
+      audio.muted = true
       audio.volume = 0
     }
 
