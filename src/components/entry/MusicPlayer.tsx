@@ -130,6 +130,46 @@ export function MusicPlayer({ music, autoplay = true, loop = true }: MusicPlayer
     }
   }, [])
 
+  // ── Expose global API untuk section music cue ──
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    window.__musicPlayer = {
+      fadeOut: (ms: number) => {
+        fadeVolume(0, ms)
+      },
+      fadeIn: (ms: number) => {
+        if (audio.paused) audio.play().catch(() => undefined)
+        fadeVolume(muted ? 0 : DEFAULT_VOLUME, ms)
+      },
+      playTrack: (track) => {
+        const rawUrl = track.preview_url ?? track.file_url ?? null
+        if (!rawUrl) return
+        const src = rawUrl.includes("itunes.apple.com") || rawUrl.includes("mzstatic.com")
+          ? `/api/audio/proxy?url=${encodeURIComponent(rawUrl)}`
+          : rawUrl
+        fadeVolume(0, 300)
+        setTimeout(() => {
+          if (audioRef.current) {
+            audioRef.current.src = src
+            audioRef.current.currentTime = track.start_time ?? 0
+            audioRef.current.loop = true
+            audioRef.current.muted = false
+            audioRef.current.volume = 0
+            audioRef.current.play()
+              .then(() => fadeVolume(DEFAULT_VOLUME, 600))
+              .catch(() => undefined)
+          }
+        }, 320)
+      },
+    }
+
+    return () => {
+      delete window.__musicPlayer
+    }
+  }, [fadeVolume, muted])
+
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
@@ -192,11 +232,29 @@ export function MusicPlayer({ music, autoplay = true, loop = true }: MusicPlayer
 
   useEffect(() => {
     const audio = audioRef.current
-    if (!audio || !loopUrlRef.current) return
+    if (!audio) return
 
-    audio.src = loopUrlRef.current
+    // ── Tentukan URL audio yang dipakai ──
+    // Priority: preview_url (iTunes) → file_url (upload) → ambient fallback
+    const rawUrl = music?.preview_url ?? music?.file_url ?? null
+
+    let audioSrc: string
+    if (rawUrl) {
+      // iTunes CDN perlu diproxy untuk menghindari CORS
+      audioSrc = rawUrl.includes("itunes.apple.com") || rawUrl.includes("mzstatic.com")
+        ? `/api/audio/proxy?url=${encodeURIComponent(rawUrl)}`
+        : rawUrl
+    } else if (loopUrlRef.current) {
+      // Fallback ke ambient loop jika tidak ada URL
+      audioSrc = loopUrlRef.current
+    } else {
+      return
+    }
+
+    audio.src = audioSrc
     audio.loop = loop
     audio.preload = "auto"
+    audio.currentTime = music?.start_time ?? 0
     audio.muted = autoplay && !userInteractedRef.current
     audio.volume = muted ? 0 : clampVolume(DEFAULT_VOLUME)
     audio.load()
@@ -217,8 +275,9 @@ export function MusicPlayer({ music, autoplay = true, loop = true }: MusicPlayer
 
     return () => {
       audio.removeEventListener("canplay", onCanPlay)
+      audio.pause()
     }
-  }, [autoplay, loop, muted])
+  }, [autoplay, loop, muted, music])
 
   const startPlayback = () => {
     const audio = audioRef.current
@@ -228,11 +287,11 @@ export function MusicPlayer({ music, autoplay = true, loop = true }: MusicPlayer
     armedAutoplayRef.current = false
     audio.muted = false
     audio.volume = muted ? 0 : clampVolume(DEFAULT_VOLUME)
-    const result = audio.play()
-    if (result) {
-      result.catch(() => {
-        setStatus("ready")
-      })
+
+    if (audio.paused) {
+      audio.play().catch(() => setStatus("ready"))
+    } else {
+      audio.pause()
     }
   }
 
