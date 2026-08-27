@@ -6,7 +6,7 @@ import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { SplitText } from "gsap/SplitText"
 import { useGSAP } from "@gsap/react"
-import type { Entry } from "@/types/entry"
+import type { Entry } from "@/data/types"
 import { formatDate } from "@/lib/utils"
 import Link from "next/link"
 
@@ -393,120 +393,122 @@ export function FriendsSelectedMemories({ entries }: { entries: Entry[] }) {
   useGSAP(() => {
     // Reveal heading
     gsap.from(".selected-heading", {
-      y: 40, opacity: 0, duration: 1, ease: "power3.out",
-      scrollTrigger: { trigger: ".selected-heading", start: "top 85%" }
+      y: 30, opacity: 0, duration: 0.9, ease: "power3.out",
+      scrollTrigger: { trigger: ".selected-heading", start: "top 88%" }
     })
 
-    // Reveal items and add inner parallax
-    const items = gsap.utils.toArray(".selected-item")
-    items.forEach((item: any, i) => {
-      // Fade in card
-      gsap.from(item, {
-        y: 60, opacity: 0, duration: 1, ease: "power2.out",
-        scrollTrigger: { trigger: item, start: "top 85%" }
+    // Hero card
+    const hero = document.querySelector(".mem-hero")
+    if (hero) {
+      gsap.from(hero, {
+        y: 50, opacity: 0, duration: 1.1, ease: "power3.out",
+        scrollTrigger: { trigger: hero, start: "top 88%" }
       })
-      
-      // Image parallax
-      const img = item.querySelector(".selected-img-inner")
+      const heroImg = hero.querySelector(".selected-img-inner")
+      if (heroImg) {
+        gsap.to(heroImg, {
+          y: -50, ease: "none",
+          scrollTrigger: { trigger: hero, start: "top bottom", end: "bottom top", scrub: true }
+        })
+      }
+    }
+
+    // Grid cards
+    const cards = gsap.utils.toArray(".mem-card")
+    cards.forEach((card: any, i) => {
+      gsap.from(card, {
+        y: 40, opacity: 0, duration: 0.8, ease: "power2.out", delay: i * 0.06,
+        scrollTrigger: { trigger: card, start: "top 88%" }
+      })
+      const img = card.querySelector(".selected-img-inner")
       if (img) {
         gsap.to(img, {
-          y: -40, // Move up as we scroll down
-          ease: "none",
-          scrollTrigger: {
-            trigger: item,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true
-          }
+          y: -30, ease: "none",
+          scrollTrigger: { trigger: card, start: "top bottom", end: "bottom top", scrub: true }
         })
       }
     })
   }, { scope: sectionRef })
 
+  const hero = displayEntries[0] ?? null
+  const rest = displayEntries.slice(1)
+
   return (
-    <section ref={sectionRef} className="px-5 sm:px-8 lg:px-16 py-20 md:py-32" style={{ background: "var(--j-bg)" }}>
-      <div className="max-w-[1440px] mx-auto">
-        
+    <section ref={sectionRef} className="px-5 sm:px-8 lg:px-16 py-20 md:py-28" style={{ background: "var(--j-bg)" }}>
+      <div className="max-w-5xl mx-auto">
+
         {/* Header */}
-        <div className="mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b pb-6" style={{ borderColor: "var(--j-border-dark)" }}>
-          <h2 className="selected-heading font-light leading-none" style={{ fontFamily: "var(--font-apple)", fontSize: "clamp(2rem, 4vw, 3.5rem)", letterSpacing: "-0.03em", color: "var(--j-text-1)" }}>
+        <div className="selected-heading mb-10 flex items-end justify-between border-b pb-5" style={{ borderColor: "var(--j-border)" }}>
+          <h2 className="font-light leading-none" style={{ fontFamily: "var(--font-apple)", fontSize: "clamp(2rem, 4vw, 3rem)", letterSpacing: "-0.03em", color: "var(--j-text-1)" }}>
             All Memories.
           </h2>
-          <p className="selected-heading text-xs font-mono-custom tracking-widest uppercase" style={{ color: "var(--j-text-3)" }}>
-            {entries.length === 0 ? "Empty State Preview" : `${entries.length} moment${entries.length !== 1 ? 's' : ''}`}
+          <p className="text-xs font-mono-custom tracking-widest uppercase" style={{ color: "var(--j-text-3)" }}>
+            {entries.length === 0 ? "—" : `${entries.length} moment${entries.length !== 1 ? "s" : ""}`}
           </p>
         </div>
 
-        {/* Asymmetric Grid */}
-        <div className="flex flex-col gap-16 md:gap-32">
-          {displayEntries.map((entry, index) => {
-            const patternIndex = index % 3;
-            
-            if (patternIndex === 0) {
-              return (
-                <div key={entry.slug} className="selected-item group relative w-full md:w-[80%]">
-                  <Link href={`/entry/${entry.slug}`} className="block">
-                    <div className="relative overflow-hidden rounded-md" style={{ aspectRatio: "16/9", background: "var(--j-bg-alt)" }}>
-                      <div className="selected-img-inner absolute inset-0" style={{ height: "120%", top: "-10%" }}>
-                        <Image src={entry.cover || (entry.media[0]?.url) || ""} alt={entry.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-105" sizes="(max-width: 1440px) 100vw, 1200px" />
-                        <div className="absolute inset-0 bg-black/10 transition-colors duration-500 group-hover:bg-black/0" />
-                      </div>
-                    </div>
-                    <div className="mt-5 flex justify-between items-start">
-                      <div>
-                        <h3 className="text-xl md:text-2xl font-light" style={{ fontFamily: "var(--font-apple)", letterSpacing: "-0.02em" }}>{entry.title}</h3>
-                        <p className="text-sm mt-1" style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}>{entry.location}</p>
-                      </div>
-                      <p className="text-xs font-mono-custom" style={{ color: "var(--j-text-4)" }}>{formatDate(entry.date)}</p>
-                    </div>
-                  </Link>
+        {/* Hero entry */}
+        {hero && (
+          <Link href={`/entry/${hero.slug}`} className="mem-hero group block mb-5">
+            <div className="relative w-full overflow-hidden rounded-2xl" style={{ aspectRatio: "21/9", background: "var(--j-bg-alt)" }}>
+              <div className="selected-img-inner absolute inset-[-8%]">
+                <Image
+                  src={hero.cover || hero.media[0]?.url || ""}
+                  alt={hero.title}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                  sizes="100vw"
+                />
+              </div>
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.08) 55%, transparent 100%)" }} />
+              <div className="absolute bottom-6 left-7 right-7 flex items-end justify-between">
+                <div>
+                  <p className="text-[10px] tracking-[0.3em] uppercase text-white/55 mb-1.5 font-mono-custom">01 / Hero</p>
+                  <h3 className="text-2xl md:text-3xl font-light text-white" style={{ fontFamily: "var(--font-apple)", letterSpacing: "-0.03em" }}>
+                    {hero.title}
+                  </h3>
+                  <p className="text-sm text-white/55 mt-1">{hero.location}</p>
                 </div>
-              )
-            }
-            
-            if (patternIndex === 1) {
-              return (
-                <div key={entry.slug} className="selected-item group relative w-full md:w-[45%] self-end">
-                  <Link href={`/entry/${entry.slug}`} className="block">
-                    <div className="relative overflow-hidden rounded-md" style={{ aspectRatio: "3/4", background: "var(--j-bg-alt)" }}>
-                      <div className="selected-img-inner absolute inset-0" style={{ height: "115%", top: "-7.5%" }}>
-                        <Image src={entry.cover || (entry.media[0]?.url) || ""} alt={entry.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 600px" />
-                        <div className="absolute inset-0 bg-black/10 transition-colors duration-500 group-hover:bg-black/0" />
-                      </div>
-                    </div>
-                    <div className="mt-5 flex justify-between items-start">
-                      <div>
-                        <h3 className="text-xl font-light" style={{ fontFamily: "var(--font-apple)", letterSpacing: "-0.02em" }}>{entry.title}</h3>
-                        <p className="text-sm mt-1" style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}>{entry.location}</p>
-                      </div>
-                      <p className="text-xs font-mono-custom" style={{ color: "var(--j-text-4)" }}>{formatDate(entry.date)}</p>
-                    </div>
-                  </Link>
-                </div>
-              )
-            }
+                <span className="text-xs font-mono-custom text-white/35 shrink-0">{formatDate(hero.date)}</span>
+              </div>
+            </div>
+          </Link>
+        )}
 
-            return (
-              <div key={entry.slug} className="selected-item group relative w-full md:w-[60%] ml-[5%]">
-                <Link href={`/entry/${entry.slug}`} className="block">
-                  <div className="relative overflow-hidden rounded-md" style={{ aspectRatio: "4/3", background: "var(--j-bg-alt)" }}>
-                    <div className="selected-img-inner absolute inset-0" style={{ height: "120%", top: "-10%" }}>
-                      <Image src={entry.cover || (entry.media[0]?.url) || ""} alt={entry.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-105" sizes="(max-width: 1024px) 100vw, 800px" />
-                      <div className="absolute inset-0 bg-black/10 transition-colors duration-500 group-hover:bg-black/0" />
+        {/* Grid — rest of entries */}
+        {rest.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {rest.map((entry, i) => {
+              const aspectRatios = ["3/4", "4/5", "3/4"]
+              const ar = aspectRatios[i % aspectRatios.length]
+              return (
+                <Link key={entry.slug} href={`/entry/${entry.slug}`} className="mem-card group block">
+                  <div className="relative w-full overflow-hidden rounded-2xl" style={{ aspectRatio: ar, background: "var(--j-bg-alt)" }}>
+                    <div className="selected-img-inner absolute inset-[-8%]">
+                      <Image
+                        src={entry.cover || entry.media[0]?.url || ""}
+                        alt={entry.title}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
                     </div>
-                  </div>
-                  <div className="mt-5 flex justify-between items-start">
-                    <div>
-                      <h3 className="text-xl md:text-2xl font-light" style={{ fontFamily: "var(--font-apple)", letterSpacing: "-0.02em" }}>{entry.title}</h3>
-                      <p className="text-sm mt-1" style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}>{entry.location}</p>
+                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.04) 50%, transparent 100%)" }} />
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <p className="text-[9px] tracking-[0.3em] uppercase text-white/50 mb-1 font-mono-custom">
+                        {String(i + 2).padStart(2, "0")}
+                      </p>
+                      <h3 className="text-sm font-light text-white leading-snug" style={{ fontFamily: "var(--font-apple)", letterSpacing: "-0.02em" }}>
+                        {entry.title}
+                      </h3>
+                      <p className="text-xs text-white/45 mt-0.5">{entry.location}</p>
                     </div>
-                    <p className="text-xs font-mono-custom" style={{ color: "var(--j-text-4)" }}>{formatDate(entry.date)}</p>
                   </div>
                 </Link>
-              </div>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </section>
   )
