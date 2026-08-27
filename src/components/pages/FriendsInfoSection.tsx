@@ -212,14 +212,13 @@ export function FriendsInfoSection() {
         />
 
         {/* ── Bottom: memories ── */}
-        {/* Desktop: 3 cols | Tablet: 2 cols | Mobile: stack */}
-        <div className="flex flex-col gap-10 sm:grid sm:grid-cols-2 lg:grid lg:gap-12"
-          style={{ gridTemplateColumns: undefined }}
-        >
-          {/* Label — hide on mobile */}
-          <div className="hidden lg:block">
+        {/* Desktop: [Memories][Highlights][Places] | Tablet: [Highlights][Places] | Mobile: stack */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-12">
+
+          {/* Label — show on all screens, left column on lg, header on sm */}
+          <div className="sm:col-span-2 lg:col-span-1">
             <p
-              className="info-achievement-label text-xs font-medium tracking-widest uppercase"
+              className="info-achievement-label text-xs font-medium tracking-widest uppercase mb-6 lg:mb-0"
               style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}
             >
               Memories
@@ -237,17 +236,10 @@ export function FriendsInfoSection() {
             <div className="space-y-4">
               {HIGHLIGHTS.map(({ title, sub }) => (
                 <div key={title} className="info-highlight-item">
-                  <p
-                    className="text-sm font-light"
-                    style={{ color: "var(--j-text-1)", fontFamily: "var(--font-apple)", letterSpacing: "-0.01em" }}
-                  >
+                  <p className="text-sm font-light" style={{ color: "var(--j-text-1)", fontFamily: "var(--font-apple)", letterSpacing: "-0.01em" }}>
                     {title}
                   </p>
-                  {sub && (
-                    <p className="text-xs mt-0.5" style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}>
-                      {sub}
-                    </p>
-                  )}
+                  {sub && <p className="text-xs mt-0.5" style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}>{sub}</p>}
                 </div>
               ))}
             </div>
@@ -255,10 +247,8 @@ export function FriendsInfoSection() {
 
           {/* Places */}
           <div>
-            <p
-              className="info-col-header text-xs font-medium tracking-widest uppercase mb-5"
-              style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}
-            >
+            <p className="info-col-header text-xs font-medium tracking-widest uppercase mb-5"
+              style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}>
               Places
             </p>
             <div className="space-y-3">

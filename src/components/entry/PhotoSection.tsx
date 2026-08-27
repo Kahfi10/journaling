@@ -6,62 +6,62 @@ import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
 import { EntryCaption } from "./EntryCaption"
-import type { Media } from "@/types/entry"
+import { useSectionMusicCue } from "@/hooks/useSectionMusicCue"
+import type { Media, Music } from "@/types/entry"
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
 interface PhotoSectionProps {
   media: Media
   index: number
+  music?: Music | null
 }
 
-export function PhotoSection({ media, index }: PhotoSectionProps) {
+export function PhotoSection({ media, index, music }: PhotoSectionProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const imgRef = useRef<HTMLDivElement>(null)
   const captionRef = useRef<HTMLDivElement>(null)
 
+  useSectionMusicCue(sectionRef, music)
+
   useGSAP(
     () => {
-      // Parallax scrub on photo
       if (imgRef.current) {
-        gsap.to(imgRef.current, {
-          y: -80,
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1.5,
-          },
-        })
+        gsap.fromTo(
+          imgRef.current,
+          { scale: 1.06, opacity: 0 },
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 1.1,
+            ease: "power3.out",
+          }
+        )
       }
 
-      // Caption reveal when section hits center
-      if (captionRef.current && media.caption) {
-        gsap.set(captionRef.current, { opacity: 0, y: 16 })
-
-        ScrollTrigger.create({
+      gsap.from(sectionRef.current, {
+        opacity: 0,
+        y: 50,
+        duration: 0.8,
+        ease: "power2.out",
+        scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top center",
-          end: "bottom center",
-          onEnter: () =>
-            gsap.to(captionRef.current, {
-              opacity: 1,
-              y: 0,
-              duration: 0.6,
-              ease: "power2.out",
-            }),
-          onLeave: () =>
-            gsap.to(captionRef.current, { opacity: 0, duration: 0.3 }),
-          onEnterBack: () =>
-            gsap.to(captionRef.current, {
-              opacity: 1,
-              y: 0,
-              duration: 0.4,
-              ease: "power2.out",
-            }),
-          onLeaveBack: () =>
-            gsap.to(captionRef.current, { opacity: 0, duration: 0.3 }),
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
+      })
+
+      if (captionRef.current && media.caption) {
+        gsap.from(captionRef.current, {
+          opacity: 0,
+          y: 14,
+          duration: 0.6,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 75%",
+            toggleActions: "play none none reverse",
+          },
         })
       }
     },
@@ -71,10 +71,9 @@ export function PhotoSection({ media, index }: PhotoSectionProps) {
   return (
     <section
       ref={sectionRef}
-      className="relative h-screen overflow-hidden"
+      className="relative h-screen overflow-hidden bg-black"
     >
-      {/* Photo with parallax wrapper */}
-      <div ref={imgRef} className="absolute inset-0 scale-110">
+      <div ref={imgRef} className="absolute inset-0">
         <Image
           src={media.url}
           alt={media.caption ?? `Foto ${index + 1}`}
@@ -84,12 +83,17 @@ export function PhotoSection({ media, index }: PhotoSectionProps) {
         />
       </div>
 
-      {/* Subtle overlay */}
-      <div className="absolute inset-0 bg-black/15" />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.1) 38%, transparent 70%)",
+        }}
+      />
 
       {/* Caption */}
       {media.caption && (
-        <div ref={captionRef} className="absolute bottom-20 sm:bottom-24 left-0 right-0 px-5 sm:px-12 md:px-20">
+        <div ref={captionRef} className="absolute left-5 sm:left-8 md:left-16 bottom-6 sm:bottom-10">
           <EntryCaption caption={media.caption} />
         </div>
       )}

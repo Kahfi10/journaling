@@ -33,6 +33,11 @@ export interface Music {
   entry_id: string
 }
 
+export interface SectionMusic {
+  sectionKey: string
+  music: Music
+}
+
 export interface Location {
   id: string
   display_name: string
@@ -49,4 +54,17 @@ export interface EntryCard {
   date_taken: Date
   media: Pick<Media, "url" | "type">[]
   location: Pick<Location, "display_name"> | null
+}
+
+export interface Entry {
+  slug: string
+  title: string
+  date: string
+  location?: string
+  description?: string
+  category: "friends" | "me" | "together"
+  cover: string
+  media: Media[]
+  music?: Music
+  sectionMusic?: SectionMusic[]
 }

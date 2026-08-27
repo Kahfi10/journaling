@@ -6,6 +6,9 @@ import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { SplitText } from "gsap/SplitText"
 import { useGSAP } from "@gsap/react"
+import type { Entry } from "@/types/entry"
+import { formatDate } from "@/lib/utils"
+import Link from "next/link"
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP)
 
@@ -70,8 +73,9 @@ export function FriendsMarqueeText() {
 export function FriendsFromTo() {
   const ref = useRef<HTMLElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
+  const leadRef = useRef<HTMLParagraphElement>(null)
+  const metaRef = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLDivElement>(null)
-  const bodyRef = useRef<HTMLParagraphElement>(null)
 
   useGSAP(() => {
     // Title — fade in + slide up
@@ -91,32 +95,29 @@ export function FriendsFromTo() {
       })
     }
 
-    // Image — scale up dari 0.92 + fade
+    gsap.from([leadRef.current, metaRef.current], {
+      y: 20,
+      opacity: 0,
+      duration: 0.8,
+      ease: "power2.out",
+      stagger: 0.12,
+      scrollTrigger: {
+        trigger: ref.current,
+        start: "top 82%",
+        toggleActions: "play none none reverse",
+      },
+    })
+
     if (imgRef.current) {
       gsap.from(imgRef.current, {
-        scale: 0.93,
+        y: 30,
+        scale: 0.98,
         opacity: 0,
-        duration: 1.2,
-        ease: "power2.out",
+        duration: 1.1,
+        ease: "power3.out",
         scrollTrigger: {
           trigger: imgRef.current,
           start: "top 85%",
-          toggleActions: "play none none reverse",
-        },
-      })
-    }
-
-    // Body text
-    if (bodyRef.current) {
-      gsap.from(bodyRef.current, {
-        y: 20,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power2.out",
-        delay: 0.2,
-        scrollTrigger: {
-          trigger: bodyRef.current,
-          start: "top 88%",
           toggleActions: "play none none reverse",
         },
       })
@@ -126,58 +127,76 @@ export function FriendsFromTo() {
   return (
     <section
       ref={ref}
-      className="px-5 sm:px-8 lg:px-16 py-16 md:py-24"
-      style={{ background: "var(--j-bg)", borderTop: "1px solid var(--j-border)" }}
+      className="relative isolate"
+      style={{ background: "var(--j-bg)", borderTop: "1px solid var(--j-border)", overflow: "hidden" }}
     >
-      <div className="max-w-[1440px] mx-auto">
-
-        <div className="text-center mb-10 md:mb-16">
-          <h2
-            ref={titleRef}
-            className="font-light leading-tight"
-            style={{
-              fontFamily: "var(--font-apple)",
-              fontSize: "clamp(1.2rem, 2.5vw, 2.2rem)",
-              letterSpacing: "-0.025em",
-              color: "var(--j-text-1)",
-            }}
-          >
-            From Strangers<br />
-            to Everything
-          </h2>
-        </div>
-
-        {/* Sketch image — full width on mobile */}
+      <div
+        ref={imgRef}
+        className="relative w-screen"
+        style={{
+          height: "100vh",
+          marginLeft: "calc(50% - 50vw)",
+          marginRight: "calc(50% - 50vw)",
+          background: "var(--j-bg-alt)",
+        }}
+      >
+        <Image
+          src="/images/hero-image/IMG_6175.JPG.jpeg"
+          alt="friends latest"
+          fill
+          className="object-cover"
+          quality={90}
+          sizes="100vw"
+          priority
+        />
         <div
-          ref={imgRef}
-          className="relative w-full overflow-hidden rounded-lg"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            aspectRatio: "16/9",
-            background: "#F8F7F4",
-            border: "1px solid var(--j-border)",
-            maxWidth: "900px",
-            margin: "0 auto",
+            background: "linear-gradient(to top, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.12) 35%, transparent 68%)",
           }}
-        >
-          <div className="absolute inset-0" style={{ filter: "grayscale(1) contrast(1.1)" }}>
-            <Image src="/images/hero-image/IMG_5337.JPG.jpeg" alt="sketch base" fill className="object-cover" quality={90} sizes="(max-width: 900px) 100vw, 900px" />
+        />
+        <div className="absolute left-5 right-5 bottom-5 sm:left-8 sm:right-8 sm:bottom-8">
+          <div className="max-w-3xl">
+            <p className="text-[10px] tracking-[0.32em] uppercase text-white/70 mb-3">
+              Archive / 01
+            </p>
+            <h2
+              ref={titleRef}
+              className="font-light leading-[0.92] text-white mb-4"
+              style={{
+                fontFamily: "var(--font-apple)",
+                fontSize: "clamp(2.4rem, 5vw, 6rem)",
+                letterSpacing: "-0.05em",
+              }}
+            >
+              From Strangers
+              <br />
+              to Everything
+            </h2>
+            <p
+              ref={leadRef}
+              className="text-sm sm:text-base max-w-xl leading-relaxed text-white/80 mb-4"
+              style={{ fontFamily: "var(--font-apple)" }}
+            >
+              Every great friendship begins with something small — a glance, a laugh,
+              a shared direction. The rest is built over time.
+            </p>
+            <div ref={metaRef} className="flex flex-wrap gap-2">
+              {["Since 2023", "Late drives", "Shared tables"].map((item) => (
+                <span
+                  key={item}
+                  className="inline-flex items-center rounded-full border px-3 py-1 text-[10px] tracking-[0.22em] uppercase text-white/75"
+                  style={{
+                    borderColor: "rgba(255,255,255,0.26)",
+                    fontFamily: "var(--font-apple)",
+                  }}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
-          <div className="absolute inset-0" style={{ filter: "grayscale(1) invert(1) blur(6px)", mixBlendMode: "color-dodge" }}>
-            <Image src="/images/hero-image/IMG_5337.JPG.jpeg" alt="sketch layer" fill className="object-cover" quality={90} sizes="(max-width: 900px) 100vw, 900px" aria-hidden="true" />
-          </div>
-          <div className="absolute inset-0 pointer-events-none" style={{ backdropFilter: "contrast(1.4) brightness(0.95)", mixBlendMode: "multiply" }} />
         </div>
-
-        <p
-          ref={bodyRef}
-          className="text-center mt-8 text-sm max-w-xl mx-auto leading-relaxed px-4"
-          style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)", letterSpacing: "0.01em" }}
-        >
-          Every great friendship starts with a first moment —
-          a glance, a word, a shared laugh.
-          What comes after is everything.
-        </p>
-
       </div>
     </section>
   )
@@ -272,7 +291,6 @@ export function FriendsFullImage() {
   useGSAP(() => {
     if (!imgRef.current) return
 
-    // Reveal fade in
     gsap.from(imgRef.current, {
       opacity: 0,
       duration: 1.2,
@@ -300,11 +318,11 @@ export function FriendsFullImage() {
   return (
     <section
       ref={ref}
-      className="relative"
+      className="relative isolate"
       style={{
+        isolation: "isolate",
         background: "var(--j-bg)",
         borderTop: "1px solid var(--j-border)",
-        // overflow hidden di section agar parallax tidak bocor ke section lain
         overflow: "hidden",
       }}
     >
@@ -316,28 +334,179 @@ export function FriendsFullImage() {
           background: "var(--j-bg-alt)",
         }}
       >
-        {/* Inner image dengan scale lebih besar untuk buffer parallax */}
         <div
           className="full-img-inner absolute"
           style={{
-            inset: "-10% 0",   // buffer atas-bawah agar tidak ada gap
-            transform: "scale(1)",
+            top: "-150px", bottom: "-150px", left: 0, right: 0,
           }}
         >
           <Image
-            src="/images/hero-image/IMG_6175.JPG.jpeg"
-            alt="Friends"
+            src="/images/hero-image/WhatsApp Image 2026-08-27 at 10.19.25.jpeg"
+            alt="friends latest"
             fill
             className="object-cover"
-            quality={100}
+            quality={90}
             sizes="100vw"
           />
         </div>
-        {/* Subtle dark overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "rgba(0,0,0,0.12)", zIndex: 1 }}
-        />
+      </div>
+    </section>
+  )
+}
+
+// ─── Section 5: Selected Memories (Architectural Style) ───────────────────
+
+export function FriendsSelectedMemories({ entries }: { entries: Entry[] }) {
+  const sectionRef = useRef<HTMLElement>(null)
+  
+  // Use real entries if available, otherwise show fallback for empty state preview
+  const displayEntries = entries.length > 0 ? entries : [
+    {
+      slug: "demo-1",
+      title: "Late Night Drive",
+      date: "2023-10-14",
+      location: "Jakarta",
+      cover: "/images/hero-image/IMG_5337.JPG.jpeg", // Using existing images
+      media: [],
+      category: "friends"
+    } as Entry,
+    {
+      slug: "demo-2",
+      title: "Coffee & Conversations",
+      date: "2024-01-22",
+      location: "Bandung",
+      cover: "/images/hero-image/IMG_6175.JPG.jpeg",
+      media: [],
+      category: "friends"
+    } as Entry,
+    {
+      slug: "demo-3",
+      title: "Random Stops",
+      date: "2024-03-05",
+      location: "Bogor",
+      cover: "/images/hero-image/IMG_5337.JPG.jpeg", // Reuse for demo
+      media: [],
+      category: "friends"
+    } as Entry
+  ]
+
+  useGSAP(() => {
+    // Reveal heading
+    gsap.from(".selected-heading", {
+      y: 40, opacity: 0, duration: 1, ease: "power3.out",
+      scrollTrigger: { trigger: ".selected-heading", start: "top 85%" }
+    })
+
+    // Reveal items and add inner parallax
+    const items = gsap.utils.toArray(".selected-item")
+    items.forEach((item: any, i) => {
+      // Fade in card
+      gsap.from(item, {
+        y: 60, opacity: 0, duration: 1, ease: "power2.out",
+        scrollTrigger: { trigger: item, start: "top 85%" }
+      })
+      
+      // Image parallax
+      const img = item.querySelector(".selected-img-inner")
+      if (img) {
+        gsap.to(img, {
+          y: -40, // Move up as we scroll down
+          ease: "none",
+          scrollTrigger: {
+            trigger: item,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true
+          }
+        })
+      }
+    })
+  }, { scope: sectionRef })
+
+  return (
+    <section ref={sectionRef} className="px-5 sm:px-8 lg:px-16 py-20 md:py-32" style={{ background: "var(--j-bg)" }}>
+      <div className="max-w-[1440px] mx-auto">
+        
+        {/* Header */}
+        <div className="mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b pb-6" style={{ borderColor: "var(--j-border-dark)" }}>
+          <h2 className="selected-heading font-light leading-none" style={{ fontFamily: "var(--font-apple)", fontSize: "clamp(2rem, 4vw, 3.5rem)", letterSpacing: "-0.03em", color: "var(--j-text-1)" }}>
+            All Memories.
+          </h2>
+          <p className="selected-heading text-xs font-mono-custom tracking-widest uppercase" style={{ color: "var(--j-text-3)" }}>
+            {entries.length === 0 ? "Empty State Preview" : `${entries.length} moment${entries.length !== 1 ? 's' : ''}`}
+          </p>
+        </div>
+
+        {/* Asymmetric Grid */}
+        <div className="flex flex-col gap-16 md:gap-32">
+          {displayEntries.map((entry, index) => {
+            const patternIndex = index % 3;
+            
+            if (patternIndex === 0) {
+              return (
+                <div key={entry.slug} className="selected-item group relative w-full md:w-[80%]">
+                  <Link href={`/entry/${entry.slug}`} className="block">
+                    <div className="relative overflow-hidden rounded-md" style={{ aspectRatio: "16/9", background: "var(--j-bg-alt)" }}>
+                      <div className="selected-img-inner absolute inset-0" style={{ height: "120%", top: "-10%" }}>
+                        <Image src={entry.cover || (entry.media[0]?.url) || ""} alt={entry.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-105" sizes="(max-width: 1440px) 100vw, 1200px" />
+                        <div className="absolute inset-0 bg-black/10 transition-colors duration-500 group-hover:bg-black/0" />
+                      </div>
+                    </div>
+                    <div className="mt-5 flex justify-between items-start">
+                      <div>
+                        <h3 className="text-xl md:text-2xl font-light" style={{ fontFamily: "var(--font-apple)", letterSpacing: "-0.02em" }}>{entry.title}</h3>
+                        <p className="text-sm mt-1" style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}>{entry.location}</p>
+                      </div>
+                      <p className="text-xs font-mono-custom" style={{ color: "var(--j-text-4)" }}>{formatDate(entry.date)}</p>
+                    </div>
+                  </Link>
+                </div>
+              )
+            }
+            
+            if (patternIndex === 1) {
+              return (
+                <div key={entry.slug} className="selected-item group relative w-full md:w-[45%] self-end">
+                  <Link href={`/entry/${entry.slug}`} className="block">
+                    <div className="relative overflow-hidden rounded-md" style={{ aspectRatio: "3/4", background: "var(--j-bg-alt)" }}>
+                      <div className="selected-img-inner absolute inset-0" style={{ height: "115%", top: "-7.5%" }}>
+                        <Image src={entry.cover || (entry.media[0]?.url) || ""} alt={entry.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 600px" />
+                        <div className="absolute inset-0 bg-black/10 transition-colors duration-500 group-hover:bg-black/0" />
+                      </div>
+                    </div>
+                    <div className="mt-5 flex justify-between items-start">
+                      <div>
+                        <h3 className="text-xl font-light" style={{ fontFamily: "var(--font-apple)", letterSpacing: "-0.02em" }}>{entry.title}</h3>
+                        <p className="text-sm mt-1" style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}>{entry.location}</p>
+                      </div>
+                      <p className="text-xs font-mono-custom" style={{ color: "var(--j-text-4)" }}>{formatDate(entry.date)}</p>
+                    </div>
+                  </Link>
+                </div>
+              )
+            }
+
+            return (
+              <div key={entry.slug} className="selected-item group relative w-full md:w-[60%] ml-[5%]">
+                <Link href={`/entry/${entry.slug}`} className="block">
+                  <div className="relative overflow-hidden rounded-md" style={{ aspectRatio: "4/3", background: "var(--j-bg-alt)" }}>
+                    <div className="selected-img-inner absolute inset-0" style={{ height: "120%", top: "-10%" }}>
+                      <Image src={entry.cover || (entry.media[0]?.url) || ""} alt={entry.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-105" sizes="(max-width: 1024px) 100vw, 800px" />
+                      <div className="absolute inset-0 bg-black/10 transition-colors duration-500 group-hover:bg-black/0" />
+                    </div>
+                  </div>
+                  <div className="mt-5 flex justify-between items-start">
+                    <div>
+                      <h3 className="text-xl md:text-2xl font-light" style={{ fontFamily: "var(--font-apple)", letterSpacing: "-0.02em" }}>{entry.title}</h3>
+                      <p className="text-sm mt-1" style={{ color: "var(--j-text-3)", fontFamily: "var(--font-apple)" }}>{entry.location}</p>
+                    </div>
+                    <p className="text-xs font-mono-custom" style={{ color: "var(--j-text-4)" }}>{formatDate(entry.date)}</p>
+                  </div>
+                </Link>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </section>
   )

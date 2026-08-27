@@ -1,0 +1,50 @@
+{
+  "demo-1": {
+    "title": "Late Night Drive",
+    "date": "2023-10-14",
+    "location": "Jakarta, Indonesia",
+    "category": "friends",
+    "cover": "/images/hero-image/IMG_5337.JPG.jpeg",
+    "description": "Sometimes the best plan is having no plan at all. Just driving through the empty city streets, looking for a place to eat at 2 AM, and talking about everything and nothing.",
+    "music": {
+      "id": "demo-1-God's Plan",
+      "source": "ITUNES",
+      "file_url": null,
+      "file_public_id": null,
+      "itunes_track_id": null,
+      "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/4b/79/68/4b7968ae-10d8-07b0-144b-1772a839acca/mzaf_2695074064173450170.plus.aac.p.m4a",
+      "track_name": "God's Plan",
+      "artist_name": "William Singe",
+      "album_name": null,
+      "album_art_url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/c8/f6/67/c8f6676e-ca7b-b6fa-7a6b-3a840003dcab/artwork.jpg/100x100bb.jpg",
+      "start_time": 0,
+      "duration": "THIRTY",
+      "created_at": "2026-08-27T05:01:34.184Z",
+      "entry_id": "demo-1"
+    }
+  },
+  "samalona-2026": {
+    "title": "Samalona",
+    "date": "2026-08-16",
+    "location": "Samalona, Makassar",
+    "category": "friends",
+    "cover": "/images/memories-samalona/DSC00577.JPG",
+    "description": "A slow island day that turned into one of those memories you keep replaying later — warm water, loud laughter, and the kind of escape that makes everything feel lighter.",
+    "music": {
+      "id": "samalona-2026-God's Plan",
+      "source": "ITUNES",
+      "file_url": null,
+      "file_public_id": null,
+      "itunes_track_id": null,
+      "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/da/7d/f1/da7df14b-8ee6-5020-d850-ccc0381eb141/mzaf_5511967710095380808.plus.aac.p.m4a",
+      "track_name": "God's Plan",
+      "artist_name": "Drake",
+      "album_name": null,
+      "album_art_url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/bb/6d/8f/bb6d8f67-6d04-10b5-dd62-eb5809ac54fc/00602567879152.rgb.jpg/100x100bb.jpg",
+      "start_time": 0,
+      "duration": "THIRTY",
+      "created_at": "2026-08-27T05:13:13.855Z",
+      "entry_id": "samalona-2026"
+    }
+  }
+}
