@@ -28,6 +28,7 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
   const volumeRef = useRef(0.72)
   const mutedRef = useRef(false)
   const pendingAutoplayRef = useRef(true)
+  const userInteractedRef = useRef(false)
   const durationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const audioUrl = useMemo(() => (activeMusic ? getTrackUrl(activeMusic) : ""), [activeMusic])
@@ -55,6 +56,15 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
     sound.play()
   }, [activeMusic])
 
+  const allowPlaybackIfReady = useCallback(() => {
+    if (!userInteractedRef.current) return
+    if (!pendingAutoplayRef.current) return
+    if (status !== "ready") return
+
+    pendingAutoplayRef.current = false
+    playCurrentSound()
+  }, [playCurrentSound, status])
+
   const switchTrack = useCallback(
     (nextMusic: MusicType) => {
       const nextUrl = getTrackUrl(nextMusic)
@@ -79,7 +89,7 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
       setStatus("loading")
       setActiveMusic(nextMusic)
     },
-    [activeMusic, clearCurrentSound, playCurrentSound]
+    [activeMusic, clearCurrentSound]
   )
 
   useEffect(() => {
@@ -102,10 +112,22 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
       },
     }
 
+    const markInteraction = () => {
+      userInteractedRef.current = true
+      allowPlaybackIfReady()
+    }
+
+    window.addEventListener("pointerdown", markInteraction, { passive: true, once: true })
+    window.addEventListener("keydown", markInteraction, { passive: true, once: true })
+    window.addEventListener("touchstart", markInteraction, { passive: true, once: true })
+
     return () => {
       delete (window as unknown as Record<string, unknown>).__musicPlayer
+      window.removeEventListener("pointerdown", markInteraction)
+      window.removeEventListener("keydown", markInteraction)
+      window.removeEventListener("touchstart", markInteraction)
     }
-  }, [switchTrack])
+  }, [allowPlaybackIfReady, switchTrack])
 
   useEffect(() => {
     if (!activeMusic || !audioUrl) {
@@ -123,10 +145,7 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
       preload: true,
       onload: () => {
         setStatus("ready")
-        if (pendingAutoplayRef.current) {
-          pendingAutoplayRef.current = false
-          playCurrentSound()
-        }
+        allowPlaybackIfReady()
       },
       onloaderror: (_id, err) => {
         console.error("[Music] load error:", err)
@@ -143,8 +162,8 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
         }
       },
       onplayerror: (_id, err) => {
-        console.error("[Music] play error:", err)
-        Howler.ctx?.resume().then(() => playCurrentSound())
+        console.warn("[Music] play blocked:", err)
+        setStatus("ready")
       },
     })
 
@@ -153,7 +172,7 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
     return () => {
       clearCurrentSound()
     }
-  }, [activeMusic, audioUrl, clearCurrentSound, playCurrentSound])
+  }, [activeMusic, audioUrl, allowPlaybackIfReady, clearCurrentSound, playCurrentSound])
 
   useEffect(() => {
     const sound = soundRef.current
@@ -194,6 +213,7 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
   const togglePlayback = () => {
     const sound = soundRef.current
     if (!sound || !activeMusic) return
+    userInteractedRef.current = true
 
     if (sound.playing()) {
       sound.pause()
