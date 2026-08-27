@@ -2,6 +2,7 @@
 import { notFound } from "next/navigation"
 import { getEntryBySlug, getAllSlugs } from "@/data/entries"
 import { EntryHero } from "@/components/entry/EntryHero"
+import { EntryStory } from "@/components/entry/EntryStory"
 import { PhotoSection } from "@/components/entry/PhotoSection"
 import { VideoSection } from "@/components/entry/VideoSection"
 import { EntryFooter } from "@/components/entry/EntryFooter"
@@ -77,6 +78,13 @@ export default async function EntryDetailPage({ params }: PageProps) {
           dateTaken={new Date(entry.date)}
           location={location}
           coverUrl={entry.cover}
+        />
+
+        <EntryStory 
+          location={entry.location || null} 
+          dateTaken={new Date(entry.date)} 
+          category={entry.category} 
+          description={entry.description || "A collection of fragments and memories from this particular day, captured exactly as they happened."} 
         />
 
         {entry.media.map((media, index) => {

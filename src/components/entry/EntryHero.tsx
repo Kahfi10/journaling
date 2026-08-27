@@ -100,45 +100,48 @@ export function EntryHero({ title, dateTaken, location, coverUrl }: EntryHeroPro
         </div>
       )}
 
-      {/* Overlay — tetap gelap untuk readability */}
-      <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.42)" }} />
+      {/* Very subtle gradient overlay just to ensure bottom corners text readability */}
+      <div className="absolute inset-0 z-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 20%, transparent 85%, rgba(0,0,0,0.3) 100%)" }} />
 
-      {/* Content */}
-      <div className="relative z-10 text-center px-5 sm:px-8 max-w-5xl mx-auto">
-        {location && (
-          <div className="hero-meta inline-flex items-center gap-1.5 mb-5 sm:mb-7 px-3 py-1.5 rounded-full border" style={{ borderColor: "rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.1)" }}>
-            <MapPin className="w-3 h-3" style={{ color: "rgba(255,255,255,0.8)" }} />
-            <span className="text-[10px] font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.8)" }}>
-              {location.display_name}
-            </span>
+      {/* Content - Spread to corners */}
+      <div className="absolute inset-0 z-10 p-5 sm:p-8 flex flex-col justify-between">
+        
+        {/* Top bar */}
+        <div className="flex justify-between items-start w-full">
+          {/* We can put breadcrumbs or back button here later */}
+          <div /> 
+        </div>
+
+        {/* Bottom bar */}
+        <div className="flex items-end justify-between w-full">
+          {/* Left: Huge Title */}
+          <div className="max-w-[70vw]">
+            <h1
+              ref={titleRef}
+              className="text-white font-light"
+              style={{
+                fontFamily: "var(--font-apple)",
+                fontSize: "clamp(3.5rem, 8vw, 7.5rem)",
+                letterSpacing: "-0.04em",
+                lineHeight: 0.9,
+              }}
+            >
+              {title}
+            </h1>
           </div>
-        )}
 
-        <h1
-          ref={titleRef}
-          className="text-white font-light mb-4 sm:mb-5"
-          style={{
-            fontFamily: "var(--font-apple)",
-            fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
-            letterSpacing: "-0.04em",
-            lineHeight: 1.0,
-          }}
-        >
-          {title}
-        </h1>
-
-        <p className="hero-meta font-mono-custom text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>
-          {formatDate(dateTaken)}
-        </p>
-      </div>
-
-      {/* Scroll indicator */}
-      <div
-        ref={arrowRef}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-      >
-        <span className="font-mono-custom text-[9px] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.4)" }}>Scroll</span>
-        <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
+          {/* Right: Meta Info */}
+          <div className="hero-meta text-right flex flex-col items-end gap-2 pb-2">
+            <p className="font-mono-custom text-sm sm:text-base md:text-xl" style={{ color: "rgba(255,255,255,0.9)" }}>
+              {formatDate(dateTaken)}
+            </p>
+            {location && (
+              <p className="text-[10px] md:text-xs font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.7)", maxWidth: "200px", lineHeight: 1.4 }}>
+                {location.display_name}
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   )

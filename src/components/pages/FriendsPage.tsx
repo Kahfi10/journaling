@@ -9,7 +9,7 @@ import { SplitText } from "gsap/SplitText"
 import { useGSAP } from "@gsap/react"
 import { MapPin } from "lucide-react"
 import { FriendsInfoSection } from "./FriendsInfoSection"
-import { FriendsMarqueeText, FriendsFromTo, FriendsClaritySection, FriendsFullImage } from "./FriendsSections"
+import { FriendsMarqueeText, FriendsFromTo, FriendsClaritySection, FriendsFullImage, FriendsSelectedMemories } from "./FriendsSections"
 import { formatDate } from "@/lib/utils"
 import type { Entry } from "@/data/types"
 
@@ -97,10 +97,11 @@ export function FriendsPage({ entries }: FriendsPageProps) {
       {/* ── HERO ── */}
       <section
         ref={heroRef}
-        className="relative h-screen overflow-hidden"
+        className="relative isolate h-screen overflow-hidden"
+        style={{ isolation: "isolate" }}
       >
         {/* Full-screen background image */}
-        <div className="hero-bg-img absolute inset-0 scale-110">
+        <div className="hero-bg-img absolute z-0" style={{ top: "-150px", bottom: "-150px", left: 0, right: 0 }}>
           <Image
             src="/images/hero-image/IMG_5337.JPG.jpeg"
             alt="With Friends"
@@ -114,7 +115,7 @@ export function FriendsPage({ entries }: FriendsPageProps) {
 
         {/* Very subtle dark vignette — bottom only for text readability */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 z-0 pointer-events-none"
           style={{
             background: "linear-gradient(to top, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.10) 40%, transparent 70%)",
           }}
@@ -122,7 +123,7 @@ export function FriendsPage({ entries }: FriendsPageProps) {
 
         {/* Subtle overall dark overlay ~20% */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 z-0 pointer-events-none"
           style={{ background: "rgba(0,0,0,0.20)" }}
         />
 
@@ -186,6 +187,9 @@ export function FriendsPage({ entries }: FriendsPageProps) {
 
       {/* ── FROM X TO Y ── */}
       <FriendsFromTo />
+
+      {/* ── SELECTED MEMORIES ── */}
+      <FriendsSelectedMemories entries={entries} />
 
       {/* ── ENTRY GRID ── */}
       <section className="px-5 sm:px-8 lg:px-16 py-12 md:py-16" style={{ background: "var(--j-bg)" }}>
