@@ -313,7 +313,7 @@ export function EntrySettingsAdmin() {
             Mengatur metadata dan music per entry
           </h1>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed" style={{ color: "var(--j-text-3)" }}>
-            Ini fondasi awal untuk edit title, cover, description, dan background music. Nanti bisa diperluas ke music per section.
+            Fokusnya sekarang: metadata dasar, satu lagu utama, dan track berbeda untuk tiap section.
           </p>
         </div>
 
@@ -443,7 +443,7 @@ export function EntrySettingsAdmin() {
                           Background Music
                         </p>
                         <p className="text-sm" style={{ color: "var(--j-text-3)" }}>
-                          Untuk sekarang ini masih level entry. Nanti bisa diperluas ke tiap section.
+                          Pilih lagu iTunes, lalu preview 30s akan dipakai otomatis.
                         </p>
                       </div>
                       <label className="flex items-center gap-2 text-xs uppercase tracking-[0.22em]" style={{ color: "var(--j-text-2)" }}>
@@ -456,54 +456,36 @@ export function EntrySettingsAdmin() {
                       </label>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div>
-                        <Label>Source</Label>
-                        <select
-                          value={form.music.source}
-                          onChange={(event) => updateMusicField("source", event.target.value as MusicFormState["source"])}
-                          className="mt-2 w-full rounded-xl border px-4 py-3 text-sm outline-none"
-                          style={{ borderColor: "var(--j-border)", background: "var(--j-bg)", color: "var(--j-text-1)" }}
-                        >
-                          <option value="UPLOAD">UPLOAD</option>
-                          <option value="ITUNES">ITUNES</option>
-                        </select>
-                      </div>
-                      {form.music.source === "ITUNES" ? (
-                        <div className="md:col-span-2">
-                          <TrackSearchPicker
-                            label="Pilih lagu iTunes"
-                            placeholder="Cari judul lagu atau artis"
-                            onPick={applyItunesTrack}
-                            initialQuery={form.music.track_name || form.music.artist_name}
+                    <TrackSearchPicker
+                      label="Pilih lagu iTunes"
+                      placeholder="Cari judul lagu atau artis"
+                      onPick={applyItunesTrack}
+                      initialQuery={form.music.track_name || form.music.artist_name}
+                    />
+
+                    {form.music.track_name ? (
+                      <div className="mt-4 flex items-center gap-3 rounded-xl border p-3" style={{ borderColor: "var(--j-border)", background: "rgba(0,0,0,0.02)" }}>
+                        {form.music.album_art_url ? (
+                          <img
+                            src={form.music.album_art_url}
+                            alt={form.music.track_name}
+                            className="h-12 w-12 rounded-lg object-cover flex-shrink-0"
                           />
+                        ) : null}
+                        <div className="min-w-0">
+                          <p className="truncate font-light" style={{ color: "var(--j-text-1)", fontFamily: "var(--font-apple)" }}>
+                            {form.music.track_name}
+                          </p>
+                          <p className="truncate text-xs" style={{ color: "var(--j-text-3)" }}>
+                            {form.music.artist_name}
+                          </p>
                         </div>
-                      ) : null}
-                      <Field
-                        label={form.music.source === "ITUNES" ? "Preview URL" : "File URL"}
-                        value={form.music.source === "ITUNES" ? form.music.preview_url : form.music.file_url}
-                        onChange={(value) =>
-                          updateMusicField(form.music.source === "ITUNES" ? "preview_url" : "file_url", value)
-                        }
-                      />
-                      <Field label="Track name" value={form.music.track_name} onChange={(value) => updateMusicField("track_name", value)} />
-                      <Field label="Artist name" value={form.music.artist_name} onChange={(value) => updateMusicField("artist_name", value)} />
-                      <Field label="Album art URL" value={form.music.album_art_url} onChange={(value) => updateMusicField("album_art_url", value)} />
-                      <Field label="Start time" value={form.music.start_time} onChange={(value) => updateMusicField("start_time", value)} />
-                      <div>
-                        <Label>Duration</Label>
-                        <select
-                          value={form.music.duration}
-                          onChange={(event) => updateMusicField("duration", event.target.value as MusicFormState["duration"])}
-                          className="mt-2 w-full rounded-xl border px-4 py-3 text-sm outline-none"
-                          style={{ borderColor: "var(--j-border)", background: "var(--j-bg)", color: "var(--j-text-1)" }}
-                        >
-                          <option value="FIFTEEN">15s</option>
-                          <option value="THIRTY">30s</option>
-                          <option value="SIXTY">60s</option>
-                        </select>
                       </div>
-                    </div>
+                    ) : (
+                      <p className="mt-4 text-xs" style={{ color: "var(--j-text-3)" }}>
+                        Belum ada lagu dipilih.
+                      </p>
+                    )}
                   </div>
 
                   <div className="rounded-2xl border p-4" style={{ borderColor: "var(--j-border)" }}>

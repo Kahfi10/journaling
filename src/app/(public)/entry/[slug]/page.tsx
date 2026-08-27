@@ -34,7 +34,18 @@ export default async function EntryDetailPage({ params }: PageProps) {
   const entry = getEntryBySlug(slug)
   if (!entry) notFound()
 
+  const sectionMusicMap = Object.fromEntries(
+    (entry.sectionMusic ?? []).map((slot) => [slot.sectionKey, slot.music])
+  ) as Record<string, Music>
+
   // Build music shape for MusicPlayer
+  const initialSectionMusic = sectionMusicMap.hero
+    ?? sectionMusicMap.story
+    ?? sectionMusicMap["memory-intro"]
+    ?? sectionMusicMap.gallery
+    ?? Object.values(sectionMusicMap)[0]
+    ?? null
+
   const music = entry.music
     ? {
         id: entry.slug,
@@ -56,7 +67,7 @@ export default async function EntryDetailPage({ params }: PageProps) {
         created_at: new Date(),
         entry_id: entry.slug,
       }
-    : null
+    : initialSectionMusic
 
   // Build location shape
   const location = entry.location
@@ -70,10 +81,6 @@ export default async function EntryDetailPage({ params }: PageProps) {
         entry_id: entry.slug,
       }
     : null
-
-  const sectionMusicMap = Object.fromEntries(
-    (entry.sectionMusic ?? []).map((slot) => [slot.sectionKey, slot.music])
-  ) as Record<string, Music>
 
   return (
     <>

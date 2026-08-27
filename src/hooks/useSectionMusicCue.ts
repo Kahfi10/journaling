@@ -37,12 +37,6 @@ export function useSectionMusicCue(sectionRef: RefObject<HTMLElement | null>, mu
           window.__musicPlayer?.playTrack?.(music)
           didTrigger.current = true
         },
-        onLeave: () => {
-          if (didTrigger.current) window.__musicPlayer?.fadeOut?.(250)
-        },
-        onLeaveBack: () => {
-          if (didTrigger.current) window.__musicPlayer?.fadeOut?.(250)
-        },
       })
 
       return () => {
