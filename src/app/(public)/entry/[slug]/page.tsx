@@ -9,7 +9,10 @@ import { VideoSection } from "@/components/entry/VideoSection"
 import { EntryFooter } from "@/components/entry/EntryFooter"
 import { MusicPlayer } from "@/components/entry/MusicPlayer"
 import { ScrollProgress } from "@/components/entry/ScrollProgress"
+import { unstable_noStore as noStore } from "next/cache"
 import type { Music } from "@/types/entry"
+
+export const dynamic = "force-dynamic"
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -30,6 +33,8 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function EntryDetailPage({ params }: PageProps) {
+  noStore()
+
   const { slug } = await params
   const entry = getEntryBySlug(slug)
   if (!entry) notFound()
@@ -49,21 +54,17 @@ export default async function EntryDetailPage({ params }: PageProps) {
   const music = entry.music
     ? {
         id: entry.slug,
-        source: entry.music.source as "ITUNES" | "UPLOAD",
-        file_url: entry.music.fileUrl ?? null,
+        source: entry.music.source,
+        file_url: entry.music.file_url,
         file_public_id: null,
         itunes_track_id: null,
-        preview_url: entry.music.previewUrl ?? null,
-        track_name: entry.music.trackName ?? null,
-        artist_name: entry.music.artistName ?? null,
+        preview_url: entry.music.preview_url,
+        track_name: entry.music.track_name,
+        artist_name: entry.music.artist_name,
         album_name: null,
-        album_art_url: entry.music.albumArtUrl ?? null,
-        start_time: entry.music.startTime ?? 0,
-        duration: (entry.music.duration === 15
-          ? "FIFTEEN"
-          : entry.music.duration === 60
-          ? "SIXTY"
-          : "THIRTY") as "FIFTEEN" | "THIRTY" | "SIXTY",
+        album_art_url: entry.music.album_art_url,
+        start_time: entry.music.start_time,
+        duration: entry.music.duration,
         created_at: new Date(),
         entry_id: entry.slug,
       }

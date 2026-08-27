@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Howl, Howler } from "howler"
-import { Music, Volume2, VolumeX } from "lucide-react"
+import { Music, Pause, Play, Volume2, VolumeX } from "lucide-react"
 import { getMusicDurationSeconds } from "@/lib/utils"
 import type { Music as MusicType } from "@/types/entry"
 
@@ -11,7 +11,11 @@ interface MusicPlayerProps {
 }
 
 function getTrackUrl(track: MusicType) {
-  return track.source === "ITUNES" ? track.preview_url : track.file_url
+  if (track.source === "ITUNES") {
+    return track.preview_url ? `/api/audio/proxy?url=${encodeURIComponent(track.preview_url)}` : ""
+  }
+
+  return track.file_url
 }
 
 export function MusicPlayer({ music }: MusicPlayerProps) {
@@ -187,6 +191,30 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
     setMuted((value) => !value)
   }
 
+  const togglePlayback = () => {
+    const sound = soundRef.current
+    if (!sound || !activeMusic) return
+
+    if (sound.playing()) {
+      sound.pause()
+      return
+    }
+
+    if (sound.state() === "loaded") {
+      sound.seek(activeMusic.start_time ?? 0)
+      sound.volume(mutedRef.current ? 0 : volumeRef.current)
+      sound.play()
+      return
+    }
+
+    if (sound.state() === "unloaded") {
+      sound.load()
+      return
+    }
+
+    sound.play()
+  }
+
   return (
     <div className="fixed bottom-4 left-4 right-4 z-[100] flex justify-center pointer-events-none">
       <div
@@ -197,6 +225,17 @@ export function MusicPlayer({ music }: MusicPlayerProps) {
           color: "var(--j-text-1)",
         }}
       >
+        <button
+          type="button"
+          onClick={togglePlayback}
+          className="flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
+          style={{ borderColor: "var(--j-border)", background: "var(--j-bg)", color: "var(--j-text-1)" }}
+          aria-label={status === "playing" ? "Pause" : "Play"}
+          disabled={!activeMusic || status === "idle" || status === "error"}
+        >
+          {status === "playing" ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+        </button>
+
         {activeMusic?.album_art_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={activeMusic.album_art_url} alt={activeMusic.track_name ?? ""} className="h-9 w-9 rounded-full object-cover" />
